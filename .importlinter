@@ -1,0 +1,47 @@
+[importlinter]
+root_package = app
+include_external_packages = True
+
+[importlinter:contract:inner-layers]
+name = Inner layers must point inward
+type = layers
+layers =
+    app.adapters
+    app.application
+    app.domain
+
+[importlinter:contract:domain-isolation]
+name = Domain must be isolated
+type = forbidden
+source_modules =
+    app.domain
+forbidden_modules =
+    app.application
+    app.adapters
+    app.infra
+    fastapi
+    sqlalchemy
+    alembic
+    pydantic
+
+[importlinter:contract:application-isolation]
+name = Application must not depend on outer details
+type = forbidden
+source_modules =
+    app.application
+forbidden_modules =
+    app.adapters
+    app.infra
+    fastapi
+    sqlalchemy
+    alembic
+    pydantic
+
+[importlinter:contract:http-framework-boundary]
+name = FastAPI must stay out of inner layers
+type = forbidden
+source_modules =
+    app.domain
+    app.application
+forbidden_modules =
+    fastapi
