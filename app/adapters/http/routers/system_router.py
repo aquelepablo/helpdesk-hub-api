@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import APIRouter
 
@@ -57,5 +57,6 @@ def get_info() -> dict[str, str]:
     summary="Retornar a hora atual da API",
 )
 def get_ping() -> dict[str, str]:
-    dt_now = datetime.now()
-    return {"timestamp": dt_now.isoformat()}
+    dt_now = datetime.now(tz=UTC)
+
+    return {"timestamp": dt_now.isoformat(), "timezone": "UTC"}
