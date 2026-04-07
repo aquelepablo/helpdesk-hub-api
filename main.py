@@ -1,4 +1,11 @@
 import uvicorn
 
+from app.infra.settings.settings import settings
+
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(
+        "app.main:app",
+        host="127.0.0.1",
+        port=settings.app_port,
+        reload=settings.is_development,
+    )
