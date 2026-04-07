@@ -15,6 +15,7 @@ def load_pyproject_data() -> dict[str, str]:
 @dataclass(frozen=True)
 class ProjectMetadata:
     title: str
+    name: str
     description: str
     version: str
 
@@ -24,6 +25,7 @@ class ProjectMetadata:
 
         return cls(
             title="HelpDesk Hub API",
+            name=project["name"],
             description=project["description"],
             version=project["version"],
         )

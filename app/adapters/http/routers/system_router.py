@@ -2,6 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter
 
+from app.infra.settings.project_metadata import project_metadata
 from app.infra.settings.settings import settings
 
 router = APIRouter(tags=["System"])
@@ -11,8 +12,11 @@ router = APIRouter(tags=["System"])
     "/",
     summary="Endpoint de entrada",
 )
-def get_root() -> str:
-    return "HelpDesk Hub API online"
+def get_root() -> dict[str, str]:
+    return {
+        "service": project_metadata.title,
+        "description": project_metadata.description,
+    }
 
 
 @router.get(
@@ -29,8 +33,9 @@ def get_health() -> dict[str, str]:
 )
 def get_info() -> dict[str, str]:
     api_info = {
-        "service": settings.app_name,
-        "version": settings.app_version,
+        "service": project_metadata.title,
+        "project_name": project_metadata.name,
+        "version": project_metadata.version,
         "environment": settings.app_env,
     }
     return api_info
