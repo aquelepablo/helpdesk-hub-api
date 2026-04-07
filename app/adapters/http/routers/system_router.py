@@ -47,7 +47,7 @@ def get_info() -> dict[str, str]:
         "service": project_metadata.title,
         "project_name": project_metadata.name,
         "version": project_metadata.version,
-        "environment": settings.app_env,
+        "environment": settings.app_env.value,
     }
     return api_info
 
