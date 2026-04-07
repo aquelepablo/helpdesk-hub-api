@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 
 from app.adapters.http.routers import system_router
+from app.infra.settings.project_metadata import project_metadata
 
 app = FastAPI(
-    title="HelpDesk Hub API",
-    description="API de gestão de chamados para suporte técnico",
-    version="1.0.0",
+    title=project_metadata.title,
+    description=project_metadata.description,
+    version=project_metadata.version,
 )
 
 app.include_router(system_router.router)
