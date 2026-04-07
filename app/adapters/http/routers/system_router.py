@@ -20,11 +20,22 @@ def get_root() -> dict[str, str]:
 
 
 @router.get(
+    "/live",
+    summary="Indica se o serviço está online",
+)
+def get_liveness() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+@router.get(
     "/health",
     summary="Apresentar saúde atual da API",
 )
-def get_health() -> dict[str, str]:
-    return {"status": "ok"}
+def get_health() -> dict[str, str | list[str]]:
+    return {
+        "status": "ok",
+        "checks": [],
+    }
 
 
 @router.get(
