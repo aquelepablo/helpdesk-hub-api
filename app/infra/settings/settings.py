@@ -1,13 +1,23 @@
-from pydantic_settings import BaseSettings
+from enum import Enum
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class AppEnv(Enum):
+    DEVELOPMENT = "development"
+    TEST = "test"
+    PRODUCTION = "production"
 
 
 class Settings(BaseSettings):
-    app_name: str = "HelpDesk Hub API"
-    app_env: str = "development"
-    app_version: str = "1.0.0"
+    model_config = SettingsConfigDict(env_file=".env")
 
-    class Config:
-        env_file = ".env"
+    app_env: AppEnv = AppEnv.DEVELOPMENT
+    app_port: int = 8000
+
+    @property
+    def is_development(self) -> bool:
+        return self.app_env == AppEnv.DEVELOPMENT
 
 
 settings = Settings()
