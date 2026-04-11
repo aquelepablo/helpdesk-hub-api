@@ -34,6 +34,29 @@ class TicketCreateRequest(BaseModel):
     def validate_optional_description(cls, value: str) -> str:
         return value.strip()
 
+    @field_validator("category_id")
+    @classmethod
+    def validate_category_id(cls, value: int | None) -> int | None:
+        if value is None:
+            raise ValueError("Category ID must be informed.")
+        if value <= 0:
+            raise ValueError("Category ID must be a positive integer.")
+        return value
+
+    @field_validator("priority")
+    @classmethod
+    def validate_priority(cls, value: TicketPriority | None) -> TicketPriority | None:
+        if value is None:
+            raise ValueError("Priority must be informed.")
+        return value
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, value: TicketPriority | None) -> TicketPriority | None:
+        if value is None:
+            raise ValueError("Status must be informed.")
+        return value
+
 
 class TicketUpdateRequest(BaseModel):
     id: int = Field(..., description="The ID of the ticket to update.")
