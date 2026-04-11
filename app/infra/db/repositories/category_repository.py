@@ -37,4 +37,4 @@ class InMemoryCategoryRepository(CategoryRepository):
         stored_category.is_active = updated_category.is_active
         stored_category.updated_at = datetime.now()
 
-        return stored_category
+        return copy.deepcopy(stored_category)
