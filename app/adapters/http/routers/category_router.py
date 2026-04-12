@@ -1,5 +1,10 @@
 from fastapi import APIRouter, status
 
+from app.adapters.http.docs.error_responses import (
+    CREATE_RESPONSES,
+    GET_BY_ID_RESPONSES,
+    UPDATE_RESPONSES,
+)
 from app.adapters.http.mappers.category_mapper import (
     to_create_category_input,
     to_update_category_input,
@@ -43,6 +48,7 @@ def list_categories() -> ApiResponse[list[CategoryResponse]]:
     "",
     response_model=ApiResponse[CategoryResponse],
     status_code=status.HTTP_201_CREATED,
+    responses={**CREATE_RESPONSES},
 )
 def create_category(request: CategoryCreateRequest) -> ApiResponse[CategoryResponse]:
     input_data = to_create_category_input(request)
@@ -56,6 +62,7 @@ def create_category(request: CategoryCreateRequest) -> ApiResponse[CategoryRespo
     "/{category_id}",
     response_model=ApiResponse[CategoryResponse],
     summary="Obter detalhes de uma categoria",
+    responses={**GET_BY_ID_RESPONSES},
 )
 def get_category_by_id(category_id: int) -> ApiResponse[CategoryResponse]:
     get_category_by_id_use_case = GetCategoryByIdUseCase(_get_category_repository())
@@ -71,6 +78,7 @@ def get_category_by_id(category_id: int) -> ApiResponse[CategoryResponse]:
     "",
     response_model=ApiResponse[CategoryResponse],
     summary="Atualizar detalhes de uma categoria",
+    responses={**UPDATE_RESPONSES},
 )
 def update_category(request: CategoryUpdateRequest) -> ApiResponse[CategoryResponse]:
     input_data = to_update_category_input(request)

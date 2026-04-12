@@ -1,5 +1,10 @@
 from fastapi import APIRouter, status
 
+from app.adapters.http.docs.error_responses import (
+    CREATE_RESPONSES,
+    GET_BY_ID_RESPONSES,
+    UPDATE_RESPONSES,
+)
 from app.adapters.http.mappers.ticket_mapper import (
     to_create_ticket_input,
     to_update_ticket_input,
@@ -43,6 +48,7 @@ def list_tickets() -> ApiResponse[list[TicketResponse]]:
     "",
     response_model=ApiResponse[TicketResponse],
     status_code=status.HTTP_201_CREATED,
+    responses={**CREATE_RESPONSES},
 )
 def create_ticket(request: TicketCreateRequest) -> ApiResponse[TicketResponse]:
     input_data = to_create_ticket_input(request)
@@ -59,6 +65,7 @@ def create_ticket(request: TicketCreateRequest) -> ApiResponse[TicketResponse]:
     "/{ticket_id}",
     response_model=ApiResponse[TicketResponse],
     summary="Obter detalhes de um ticket",
+    responses={**GET_BY_ID_RESPONSES},
 )
 def get_ticket_by_id(ticket_id: int) -> ApiResponse[TicketResponse]:
     get_ticket_by_id_use_case = GetTicketByIdUseCase(_get_ticket_repository())
@@ -72,6 +79,7 @@ def get_ticket_by_id(ticket_id: int) -> ApiResponse[TicketResponse]:
     "",
     response_model=ApiResponse[TicketResponse],
     summary="Atualizar detalhes de um ticket",
+    responses={**UPDATE_RESPONSES},
 )
 def update_ticket(request: TicketUpdateRequest) -> ApiResponse[TicketResponse]:
     input_data = to_update_ticket_input(request)
