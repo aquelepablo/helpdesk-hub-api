@@ -12,15 +12,12 @@ def to_create_ticket_input(request: TicketCreateRequest) -> CreateTicketInput:
         description=request.description,
         category_id=request.category_id,
         priority=request.priority,
-        status=request.status,
     )
 
 
 def to_update_ticket_input(request: TicketUpdateRequest) -> UpdateTicketInput:
     return UpdateTicketInput(
         ticket_id=request.id,
-        title=request.title,
-        description=request.description,
         category_id=request.category_id,
         priority=request.priority,
         status=request.status,

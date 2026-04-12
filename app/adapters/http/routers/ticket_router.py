@@ -54,29 +54,28 @@ def create_ticket(request: TicketCreateRequest) -> ApiResponse[TicketResponse]:
     return ApiResponse(message="Ticket criado com sucesso", data=response)
 
 
+# TODO: Implement Exception Handler to return 404 on not found
 @router.get(
     "/{ticket_id}",
     response_model=ApiResponse[TicketResponse],
-    summary="Obter detalhes de uma categoria",
+    summary="Obter detalhes de um ticket",
 )
 def get_ticket_by_id(ticket_id: int) -> ApiResponse[TicketResponse]:
     get_ticket_by_id_use_case = GetTicketByIdUseCase(_get_ticket_repository())
     ticket = get_ticket_by_id_use_case.execute(ticket_id)
     response = TicketResponse.model_validate(ticket)
 
-    return ApiResponse(
-        message="Detalhes da categoria obtidos com sucesso", data=response
-    )
+    return ApiResponse(message="Detalhes do ticket obtidos com sucesso", data=response)
 
 
 @router.patch(
     "",
     response_model=ApiResponse[TicketResponse],
-    summary="Atualizar detalhes de uma categoria",
+    summary="Atualizar detalhes de um ticket",
 )
 def update_ticket(request: TicketUpdateRequest) -> ApiResponse[TicketResponse]:
     input_data = to_update_ticket_input(request)
     update_ticket_use_case = UpdateTicketUseCase(_get_ticket_repository())
     updated_ticket = update_ticket_use_case.execute(input_data)
     response = TicketResponse.model_validate(updated_ticket)
-    return ApiResponse(message="Categoria atualizada com sucesso", data=response)
+    return ApiResponse(message="Ticket atualizado com sucesso", data=response)

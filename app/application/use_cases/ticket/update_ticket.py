@@ -9,8 +9,6 @@ from app.domain.repositories.ticket_repository import TicketRepository
 @dataclass(slots=True)
 class UpdateTicketInput:
     ticket_id: int
-    title: str | None
-    description: str | None
     category_id: int | None
     priority: TicketPriority | None
     status: TicketStatus | None
@@ -24,19 +22,16 @@ class UpdateTicketUseCase:
 
         existing_ticket = self._ticket_repository.get_by_id(input_data.ticket_id)
 
-        if input_data.title is not None:
-            existing_ticket.title = input_data.title
+        if existing_ticket.status == TicketStatus.OPEN:
+            if input_data.category_id is not None:
+                existing_ticket.category_id = input_data.category_id
 
-        if input_data.description is not None:
-            existing_ticket.description = input_data.description
+            if input_data.priority is not None:
+                existing_ticket.priority = input_data.priority
 
-        if input_data.category_id is not None:
-            existing_ticket.category_id = input_data.category_id
+            if input_data.status is not None:
+                existing_ticket.status = input_data.status
 
-        if input_data.priority is not None:
-            existing_ticket.priority = input_data.priority
-
-        if input_data.status is not None:
-            existing_ticket.status = input_data.status
-
-        return self._ticket_repository.update(existing_ticket)
+            return self._ticket_repository.update(existing_ticket)
+        else:
+            raise ValueError("Um ticket encerrado não pode ser alterado.")
