@@ -13,7 +13,7 @@ class TicketRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_by_id(self, id: int) -> Ticket:
+    def get_by_id(self, ticket_id: int) -> Ticket:
         raise NotImplementedError
 
     @abstractmethod

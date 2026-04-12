@@ -14,23 +14,20 @@ class InMemoryCategoryRepository(CategoryRepository):
         category.created_at = datetime.now()
         category.updated_at = datetime.now()
 
-        category_db.add(category)
+        stored_category = category_db.add(category)
 
-        return category
+        return stored_category
 
     def list_all(self) -> list[Category]:
         return copy.deepcopy(category_db.categories)
 
-    def get_by_id(self, id: int) -> Category:
-        for category in category_db.categories:
-            if category.id == id:
-                return copy.deepcopy(category)
-
-        raise ValueError(f"Categoria {id} não encontrada.")
+    def get_by_id(self, category_id: int) -> Category:
+        stored_category = self._find_stored_category_by_id(category_id)
+        return copy.deepcopy(stored_category)
 
     def update(self, updated_category: Category) -> Category:
 
-        stored_category = self.get_by_id(updated_category.id)
+        stored_category = self._find_stored_category_by_id(updated_category.id)
 
         stored_category.name = updated_category.name
         stored_category.description = updated_category.description
@@ -38,3 +35,10 @@ class InMemoryCategoryRepository(CategoryRepository):
         stored_category.updated_at = datetime.now()
 
         return copy.deepcopy(stored_category)
+
+    def _find_stored_category_by_id(self, category_id: int) -> Category:
+        for category in category_db.categories:
+            if category.id == id:
+                return category
+
+        raise ValueError(f"Categoria {id} não encontrada.")

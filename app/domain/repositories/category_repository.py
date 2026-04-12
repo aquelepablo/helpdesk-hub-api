@@ -13,7 +13,7 @@ class CategoryRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_by_id(self, id: int) -> Category:
+    def get_by_id(self, category_id: int) -> Category:
         raise NotImplementedError
 
     @abstractmethod
