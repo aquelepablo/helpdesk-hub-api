@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.adapters.http.exception_handlers.handlers import register_exception_handlers
 from app.adapters.http.routers import category_router, system_router, ticket_router
 from app.infra.bootstrap.seed_categories import seed_categories
 from app.infra.settings.project_metadata import project_metadata
@@ -27,7 +28,7 @@ def create_app() -> FastAPI:
 
     # TODO: Add middleware
 
-    # TODO: Add Exceptions Handler
+    register_exception_handlers(app)
 
     app.include_router(system_router.router, prefix=API_PREFIX)
     app.include_router(category_router.router, prefix=API_PREFIX)
