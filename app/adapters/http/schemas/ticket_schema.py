@@ -47,10 +47,10 @@ class TicketCreateRequest(BaseModel):
     def validate_priority(cls, value: TicketPriority | None) -> TicketPriority | None:
         if value is None:
             raise ValueError("Priority must be informed.")
+
         return value
 
 
-# TODO: Definir que alguns campos são sensíveis e não podem ser atualizados
 class TicketUpdateRequest(BaseModel):
     id: int = Field(..., description="The ID of the ticket to update.")
     category_id: int | None = Field(
