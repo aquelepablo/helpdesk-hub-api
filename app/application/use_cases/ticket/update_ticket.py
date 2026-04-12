@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
 from app.domain.enum.ticket_status import TicketStatus
+from app.domain.exceptions.ticket_exceptions import ClosedTicketUpdateError
 from app.domain.repositories.ticket_repository import TicketRepository
 
 
@@ -34,4 +35,4 @@ class UpdateTicketUseCase:
 
             return self._ticket_repository.update(existing_ticket)
         else:
-            raise ValueError("Um ticket encerrado não pode ser alterado.")
+            raise ClosedTicketUpdateError()

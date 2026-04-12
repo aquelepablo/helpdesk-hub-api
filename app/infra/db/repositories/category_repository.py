@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 
 from app.domain.entities.category import Category
+from app.domain.exceptions.category_exceptions import CategoryNotFoundError
 from app.domain.repositories.category_repository import CategoryRepository
 from app.infra.db.repositories.memory_database import category_db
 
@@ -38,7 +39,7 @@ class InMemoryCategoryRepository(CategoryRepository):
 
     def _find_stored_category_by_id(self, category_id: int) -> Category:
         for category in category_db.categories:
-            if category.id == id:
+            if category.id == category_id:
                 return category
 
-        raise ValueError(f"Categoria {id} não encontrada.")
+        raise CategoryNotFoundError(category_id)

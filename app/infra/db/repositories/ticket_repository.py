@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 
 from app.domain.entities.ticket import Ticket
+from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
 from app.domain.repositories.ticket_repository import TicketRepository
 from app.infra.db.repositories.memory_database import ticket_db
 
@@ -40,4 +41,4 @@ class InMemoryTicketRepository(TicketRepository):
             if ticket.id == ticket_id:
                 return ticket
 
-        raise ValueError(f"Ticket {ticket_id} não encontrado.")
+        raise TicketNotFoundError(ticket_id)
