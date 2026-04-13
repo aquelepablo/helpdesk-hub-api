@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
+from app.domain.repositories.category_repository import CategoryRepository
 from app.domain.repositories.ticket_repository import TicketRepository
 
 
@@ -14,10 +15,15 @@ class CreateTicketInput:
 
 
 class CreateTicketUseCase:
-    def __init__(self, repository: TicketRepository) -> None:
+    def __init__(
+        self, repository: TicketRepository, category_repository: CategoryRepository
+    ) -> None:
         self._ticket_repository = repository
+        self._category_repository = category_repository
 
     def execute(self, input_data: CreateTicketInput) -> Ticket:
+
+        self._category_repository.get_by_id(input_data.category_id)
 
         new_ticket = Ticket(
             title=input_data.title,

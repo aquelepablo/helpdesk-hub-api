@@ -4,6 +4,7 @@ from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
 from app.domain.enum.ticket_status import TicketStatus
 from app.domain.exceptions.ticket_exceptions import ClosedTicketUpdateError
+from app.domain.repositories.category_repository import CategoryRepository
 from app.domain.repositories.ticket_repository import TicketRepository
 
 
@@ -16,8 +17,11 @@ class UpdateTicketInput:
 
 
 class UpdateTicketUseCase:
-    def __init__(self, repository: TicketRepository) -> None:
+    def __init__(
+        self, repository: TicketRepository, category_repository: CategoryRepository
+    ) -> None:
         self._ticket_repository = repository
+        self._category_repository = category_repository
 
     def execute(self, input_data: UpdateTicketInput) -> Ticket:
 
@@ -25,6 +29,7 @@ class UpdateTicketUseCase:
 
         if existing_ticket.status == TicketStatus.OPEN:
             if input_data.category_id is not None:
+                self._category_repository.get_by_id(input_data.category_id)
                 existing_ticket.category_id = input_data.category_id
 
             if input_data.priority is not None:
