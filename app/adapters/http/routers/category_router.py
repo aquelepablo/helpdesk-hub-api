@@ -34,7 +34,7 @@ router = APIRouter(prefix="/category", tags=["categories"])
 def list_categories(
     use_case: ListCategoriesUseCase = Depends(
         Provide[Container.list_categories_use_case]
-    ),  # noqa: E501
+    ),
 ) -> ApiResponse[list[CategoryResponse]]:
     categories = use_case.execute()
     responses = [CategoryResponse.model_validate(category) for category in categories]

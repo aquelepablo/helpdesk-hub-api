@@ -31,6 +31,9 @@ class TicketCreateRequest(BaseModel):
     @field_validator("description")
     @classmethod
     def validate_optional_description(cls, value: str) -> str:
+        cleaned_value = value.strip()
+        if not cleaned_value:
+            raise ValueError("Description cannot be empty or blank.")
         return value.strip()
 
 
