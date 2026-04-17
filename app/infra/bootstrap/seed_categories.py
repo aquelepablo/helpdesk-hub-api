@@ -11,9 +11,8 @@ def seed_categories() -> None:
     for category_data in DEFAULT_CATEGORIES:
         if category_data["name"] not in existing_category_names:
             category = Category(
-                id=0,  # O ID será atribuído pelo repositório
                 name=str(category_data["name"]),
                 description=str(category_data["description"]),
                 is_active=bool(category_data["is_active"]),
             )
-            category_repository.create(category)
+            category_repository.save(category)

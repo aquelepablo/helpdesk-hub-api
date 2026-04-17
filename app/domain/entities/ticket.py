@@ -7,7 +7,7 @@ from app.domain.enum.ticket_status import TicketStatus
 
 @dataclass(slots=True)
 class Ticket:
-    id: int = 0
+    id: int | None = None
     title: str = ""
     description: str = ""
     category_id: int = 0

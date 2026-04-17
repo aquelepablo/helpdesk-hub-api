@@ -3,12 +3,18 @@ from datetime import datetime
 
 from app.domain.entities.ticket import Ticket
 from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
-from app.domain.repositories.ticket_repository import TicketRepository
 from app.infra.db.repositories.memory_database import ticket_db
 
 
-class InMemoryTicketRepository(TicketRepository):
-    def create(self, ticket: Ticket) -> Ticket:
+class InMemoryTicketRepository:
+    def _find_stored_ticket_by_id(self, ticket_id: int) -> Ticket:
+        for ticket in ticket_db.tickets:
+            if ticket.id == ticket_id:
+                return ticket
+
+        raise TicketNotFoundError(ticket_id)
+
+    def _create(self, ticket: Ticket) -> Ticket:
         ticket_db.id_counter += 1
         ticket.id = ticket_db.id_counter
 
@@ -19,15 +25,8 @@ class InMemoryTicketRepository(TicketRepository):
 
         return stored_ticket
 
-    def list_all(self) -> list[Ticket]:
-        return copy.deepcopy(ticket_db.tickets)
-
-    def get_by_id(self, ticket_id: int) -> Ticket:
+    def _update(self, ticket_id: int, updated_ticket: Ticket) -> Ticket:
         stored_ticket = self._find_stored_ticket_by_id(ticket_id)
-        return copy.deepcopy(stored_ticket)
-
-    def update(self, updated_ticket: Ticket) -> Ticket:
-        stored_ticket = self._find_stored_ticket_by_id(updated_ticket.id)
 
         stored_ticket.category_id = updated_ticket.category_id
         stored_ticket.priority = updated_ticket.priority
@@ -36,9 +35,15 @@ class InMemoryTicketRepository(TicketRepository):
 
         return copy.deepcopy(stored_ticket)
 
-    def _find_stored_ticket_by_id(self, ticket_id: int) -> Ticket:
-        for ticket in ticket_db.tickets:
-            if ticket.id == ticket_id:
-                return ticket
+    def save(self, ticket: Ticket) -> Ticket:
+        if ticket.id is None:
+            return self._create(ticket)
+        else:
+            return self._update(ticket.id, ticket)
 
-        raise TicketNotFoundError(ticket_id)
+    def list_all(self) -> list[Ticket]:
+        return copy.deepcopy(ticket_db.tickets)
+
+    def get_by_id(self, ticket_id: int) -> Ticket:
+        stored_ticket = self._find_stored_ticket_by_id(ticket_id)
+        return copy.deepcopy(stored_ticket)
