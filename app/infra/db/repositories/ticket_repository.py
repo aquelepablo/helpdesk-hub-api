@@ -1,5 +1,5 @@
 import copy
-from datetime import datetime
+from datetime import UTC, datetime
 
 from app.domain.entities.ticket import Ticket
 from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
@@ -18,8 +18,8 @@ class InMemoryTicketRepository:
         ticket_db.id_counter += 1
         ticket.id = ticket_db.id_counter
 
-        ticket.created_at = datetime.now()
-        ticket.updated_at = datetime.now()
+        ticket.created_at = datetime.now(UTC)
+        ticket.updated_at = datetime.now(UTC)
 
         stored_ticket = ticket_db.add(ticket)
 
@@ -31,7 +31,7 @@ class InMemoryTicketRepository:
         stored_ticket.category_id = updated_ticket.category_id
         stored_ticket.priority = updated_ticket.priority
         stored_ticket.status = updated_ticket.status
-        stored_ticket.updated_at = datetime.now()
+        stored_ticket.updated_at = datetime.now(UTC)
 
         return copy.deepcopy(stored_ticket)
 

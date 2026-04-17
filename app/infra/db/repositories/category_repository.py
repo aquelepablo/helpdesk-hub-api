@@ -1,5 +1,5 @@
 import copy
-from datetime import datetime
+from datetime import UTC, datetime
 
 from app.domain.entities.category import Category
 from app.domain.exceptions.category_exceptions import CategoryNotFoundError
@@ -18,8 +18,8 @@ class InMemoryCategoryRepository:
         category_db.id_counter += 1
         category.id = category_db.id_counter
 
-        category.created_at = datetime.now()
-        category.updated_at = datetime.now()
+        category.created_at = datetime.now(UTC)
+        category.updated_at = datetime.now(UTC)
 
         stored_category = category_db.add(category)
 
@@ -31,7 +31,7 @@ class InMemoryCategoryRepository:
         stored_category.name = updated_category.name
         stored_category.description = updated_category.description
         stored_category.is_active = updated_category.is_active
-        stored_category.updated_at = datetime.now()
+        stored_category.updated_at = datetime.now(UTC)
 
         return copy.deepcopy(stored_category)
 
