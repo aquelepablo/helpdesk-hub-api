@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status
+from dependency_injector.wiring import Provide, inject
+from fastapi import APIRouter, Depends, status
 
 from app.adapters.http.docs.error_responses import (
     CREATE_RESPONSES,
@@ -19,14 +20,9 @@ from app.application.use_cases.ticket.create_ticket import CreateTicketUseCase
 from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
 from app.application.use_cases.ticket.list_tickets import ListTicketsUseCase
 from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
-from app.domain.repositories.ticket_repository import TicketRepository
-from app.infra.db.repositories.ticket_repository import InMemoryTicketRepository
+from app.infra.container import Container
 
 router = APIRouter(prefix="/ticket", tags=["tickets"])
-
-
-def _get_ticket_repository() -> TicketRepository:
-    return InMemoryTicketRepository()
 
 
 @router.get(
@@ -34,11 +30,12 @@ def _get_ticket_repository() -> TicketRepository:
     response_model=ApiResponse[list[TicketResponse]],
     summary="Listar todos os tickets",
 )
-def list_tickets() -> ApiResponse[list[TicketResponse]]:
-    list_tickets_use_case = ListTicketsUseCase(_get_ticket_repository())
-    tickets = list_tickets_use_case.execute()
+@inject
+def list_tickets(
+    use_case: ListTicketsUseCase = Depends(Provide[Container.list_tickets_use_case]),
+) -> ApiResponse[list[TicketResponse]]:
+    tickets = use_case.execute()
     responses = [TicketResponse.model_validate(ticket) for ticket in tickets]
-
     return ApiResponse(
         message="Listagem de tickets realizada com sucesso", data=responses
     )
@@ -50,40 +47,47 @@ def list_tickets() -> ApiResponse[list[TicketResponse]]:
     status_code=status.HTTP_201_CREATED,
     responses={**CREATE_RESPONSES},
 )
-def create_ticket(request: TicketCreateRequest) -> ApiResponse[TicketResponse]:
+@inject
+def create_ticket(
+    request: TicketCreateRequest,
+    use_case: CreateTicketUseCase = Depends(Provide[Container.create_ticket_use_case]),
+) -> ApiResponse[TicketResponse]:
     input_data = to_create_ticket_input(request)
-
-    create_ticket_use_case = CreateTicketUseCase(_get_ticket_repository())
-    new_ticket = create_ticket_use_case.execute(input_data)
-
+    new_ticket = use_case.execute(input_data)
     response = TicketResponse.model_validate(new_ticket)
     return ApiResponse(message="Ticket criado com sucesso", data=response)
 
 
-# TODO: Implement Exception Handler to return 404 on not found
 @router.get(
     "/{ticket_id}",
     response_model=ApiResponse[TicketResponse],
     summary="Obter detalhes de um ticket",
     responses={**GET_BY_ID_RESPONSES},
 )
-def get_ticket_by_id(ticket_id: int) -> ApiResponse[TicketResponse]:
-    get_ticket_by_id_use_case = GetTicketByIdUseCase(_get_ticket_repository())
-    ticket = get_ticket_by_id_use_case.execute(ticket_id)
+@inject
+def get_ticket_by_id(
+    ticket_id: int,
+    use_case: GetTicketByIdUseCase = Depends(
+        Provide[Container.get_ticket_by_id_use_case]
+    ),  # noqa: E501
+) -> ApiResponse[TicketResponse]:
+    ticket = use_case.execute(ticket_id)
     response = TicketResponse.model_validate(ticket)
-
     return ApiResponse(message="Detalhes do ticket obtidos com sucesso", data=response)
 
 
 @router.patch(
-    "",
+    "/{ticket_id}",
     response_model=ApiResponse[TicketResponse],
     summary="Atualizar detalhes de um ticket",
     responses={**UPDATE_RESPONSES},
 )
-def update_ticket(request: TicketUpdateRequest) -> ApiResponse[TicketResponse]:
+@inject
+def update_ticket(
+    request: TicketUpdateRequest,
+    use_case: UpdateTicketUseCase = Depends(Provide[Container.update_ticket_use_case]),
+) -> ApiResponse[TicketResponse]:
     input_data = to_update_ticket_input(request)
-    update_ticket_use_case = UpdateTicketUseCase(_get_ticket_repository())
-    updated_ticket = update_ticket_use_case.execute(input_data)
+    updated_ticket = use_case.execute(input_data)
     response = TicketResponse.model_validate(updated_ticket)
     return ApiResponse(message="Ticket atualizado com sucesso", data=response)
