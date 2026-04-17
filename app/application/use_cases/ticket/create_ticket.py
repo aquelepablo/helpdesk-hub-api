@@ -1,9 +1,13 @@
 from dataclasses import dataclass
 
+from app.application.use_cases.category.repositories.category_repository import (
+    CategoryRepository,
+)
+from app.application.use_cases.ticket.repository.ticket_repository import (
+    TicketRepository,
+)
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
-from app.domain.repositories.category_repository import CategoryRepository
-from app.domain.repositories.ticket_repository import TicketRepository
 
 
 @dataclass(slots=True)
@@ -16,14 +20,14 @@ class CreateTicketInput:
 
 class CreateTicketUseCase:
     def __init__(
-        self, repository: TicketRepository, category_repository: CategoryRepository
+        self, ticket_repo: TicketRepository, category_repo: CategoryRepository
     ) -> None:
-        self._ticket_repository = repository
-        self._category_repository = category_repository
+        self._ticket_repo = ticket_repo
+        self._category_repo = category_repo
 
     def execute(self, input_data: CreateTicketInput) -> Ticket:
 
-        self._category_repository.get_by_id(input_data.category_id)
+        self._category_repo.get_by_id(input_data.category_id)
 
         new_ticket = Ticket(
             title=input_data.title,
@@ -32,6 +36,6 @@ class CreateTicketUseCase:
             priority=input_data.priority,
         )
 
-        persisted_ticket = self._ticket_repository.create(new_ticket)
+        persisted_ticket: Ticket = self._ticket_repo.save(new_ticket)
 
         return persisted_ticket

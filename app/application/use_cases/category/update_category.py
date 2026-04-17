@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from app.application.use_cases.category.repositories.category_repository import (
+    CategoryRepository,
+)
 from app.domain.entities.category import Category
-from app.domain.repositories.category_repository import CategoryRepository
 
 
 @dataclass(slots=True)
@@ -29,4 +31,4 @@ class UpdateCategoryUseCase:
         if input_data.is_active is not None:
             existing_category.is_active = input_data.is_active
 
-        return self._category_repository.update(existing_category)
+        return self._category_repository.save(existing_category)

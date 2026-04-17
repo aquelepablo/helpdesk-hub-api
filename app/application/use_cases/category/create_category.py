@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from app.application.use_cases.category.repositories.category_repository import (
+    CategoryRepository,
+)
 from app.domain.entities.category import Category
-from app.domain.repositories.category_repository import CategoryRepository
 
 
 @dataclass(slots=True)
@@ -23,6 +25,6 @@ class CreateCategoryUseCase:
             is_active=input_data.is_active,
         )
 
-        persisted_category = self._category_repository.create(new_category)
+        persisted_category = self._category_repository.save(new_category)
 
         return persisted_category
