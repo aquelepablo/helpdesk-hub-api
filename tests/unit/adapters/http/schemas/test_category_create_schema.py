@@ -35,3 +35,34 @@ def test_create_category_schema_rejects_extra_fields() -> None:
 
     with pytest.raises(ValidationError):
         CategoryCreateRequest.model_validate(payload)
+
+
+def test_create_category_schema_trims_name_and_description() -> None:
+    schema = CategoryCreateRequest(
+        name="  Hardware  ",
+        description="  Devices and peripherals  ",
+        is_active=True,
+    )
+
+    assert schema.name == "Hardware"
+    assert schema.description == "Devices and peripherals"
+
+
+def test_create_category_schema_allows_empty_description() -> None:
+    schema = CategoryCreateRequest(
+        name="Hardware",
+        description="   ",
+        is_active=True,
+    )
+
+    assert schema.description == ""
+
+
+def test_create_category_schema_rejects_missing_is_active() -> None:
+    payload: dict[str, object] = {
+        "name": "Hardware",
+        "description": "Devices and peripherals",
+    }
+
+    with pytest.raises(ValidationError):
+        CategoryCreateRequest.model_validate(payload)
