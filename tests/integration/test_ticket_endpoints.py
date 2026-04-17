@@ -1,26 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.infra.db.repositories.memory_database import category_db, ticket_db
 from app.main import API_PREFIX, app
 
 client = TestClient(app)
-
-
-def _reset_ticket_memory() -> None:
-    ticket_db.id_counter = 0
-    ticket_db.tickets.clear()
-
-
-def _reset_category_memory() -> None:
-    category_db.id_counter = 0
-    category_db.categories.clear()
-
-
-@pytest.fixture(autouse=True)
-def reset_memory() -> None:
-    _reset_category_memory()
-    _reset_ticket_memory()
 
 
 def _create_category() -> int:

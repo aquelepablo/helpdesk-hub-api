@@ -1,16 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.infra.db.repositories.memory_database import category_db
 from app.main import API_PREFIX, app
 
 client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def reset_category_memory() -> None:
-    category_db.id_counter = 0
-    category_db.categories.clear()
 
 
 def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
