@@ -28,9 +28,9 @@ def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
 def test_create_category_returns_created_category() -> None:
     _reset_category_memory()
 
-    payload = {
+    payload: dict[str, str | bool] = {
         "name": "Hardware",
-        "description": "Problemas fisicos com equipamentos",
+        "description": "Problemas fÍsicos com equipamentos",
         "is_active": True,
     }
 
@@ -42,7 +42,7 @@ def test_create_category_returns_created_category() -> None:
     assert body["message"] == "Categoria criada com sucesso"
     assert body["data"]["id"] == 1
     assert body["data"]["name"] == "Hardware"
-    assert body["data"]["description"] == "Problemas fisicos com equipamentos"
+    assert body["data"]["description"] == "Problemas fÍsicos com equipamentos"
     assert body["data"]["is_active"] is True
 
 
@@ -53,7 +53,7 @@ def test_get_category_by_id_returns_category_details() -> None:
         f"{API_PREFIX}/category",
         json={
             "name": "Acesso",
-            "description": "Permissoes e credenciais",
+            "description": "Permissões e credenciais",
             "is_active": True,
         },
     ).json()
@@ -99,7 +99,7 @@ def test_update_category_returns_updated_category() -> None:
     assert body["data"]["is_active"] is False
 
 
-@pytest.mark.skip(reason="Definir contrato padronizado para erros de validacao.")
+@pytest.mark.skip(reason="Definir contrato padronizado para erros de validação.")
 def test_create_category_returns_422_for_invalid_payload() -> None:
     pass
 

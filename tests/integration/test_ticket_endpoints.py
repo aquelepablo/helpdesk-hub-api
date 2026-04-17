@@ -28,9 +28,9 @@ def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
 def test_create_ticket_returns_created_ticket() -> None:
     _reset_ticket_memory()
 
-    payload = {
+    payload: dict[str, str | int] = {
         "title": "Notebook sem acesso",
-        "description": "Usuario nao consegue entrar no equipamento",
+        "description": "Usuário nao consegue entrar no equipamento",
         "category_id": 1,
         "priority": "high",
         "status": "open",
@@ -80,8 +80,8 @@ def test_update_ticket_returns_updated_ticket() -> None:
     created = client.post(
         f"{API_PREFIX}/ticket",
         json={
-            "title": "VPN instavel",
-            "description": "Conexao cai durante o expediente",
+            "title": "VPN instável",
+            "description": "Conexão cai durante o expediente",
             "category_id": 3,
             "priority": "low",
             "status": "open",
@@ -104,7 +104,7 @@ def test_update_ticket_returns_updated_ticket() -> None:
     assert body["data"]["status"] == "closed"
 
 
-@pytest.mark.skip(reason="Definir contrato padronizado para erros de validacao.")
+@pytest.mark.skip(reason="Definir contrato padronizado para erros de validação.")
 def test_create_ticket_returns_422_for_invalid_payload() -> None:
     pass
 
