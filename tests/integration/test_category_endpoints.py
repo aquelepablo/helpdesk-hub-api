@@ -7,14 +7,13 @@ from app.main import API_PREFIX, app
 client = TestClient(app)
 
 
-def _reset_category_memory() -> None:
+@pytest.fixture(autouse=True)
+def reset_category_memory() -> None:
     category_db.id_counter = 0
     category_db.categories.clear()
 
 
 def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
-    _reset_category_memory()
-
     response = client.get(f"{API_PREFIX}/category")
 
     assert response.status_code == 200
@@ -26,8 +25,6 @@ def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
 
 
 def test_create_category_returns_created_category() -> None:
-    _reset_category_memory()
-
     payload: dict[str, str | bool] = {
         "name": "Hardware",
         "description": "Problemas fÍsicos com equipamentos",
@@ -47,8 +44,6 @@ def test_create_category_returns_created_category() -> None:
 
 
 def test_get_category_by_id_returns_category_details() -> None:
-    _reset_category_memory()
-
     created = client.post(
         f"{API_PREFIX}/category",
         json={
@@ -71,8 +66,6 @@ def test_get_category_by_id_returns_category_details() -> None:
 
 
 def test_update_category_returns_updated_category() -> None:
-    _reset_category_memory()
-
     created = client.post(
         f"{API_PREFIX}/category",
         json={
@@ -82,10 +75,11 @@ def test_update_category_returns_updated_category() -> None:
         },
     ).json()
 
+    category_id = created["data"]["id"]
+
     response = client.patch(
-        f"{API_PREFIX}/category",
+        f"{API_PREFIX}/category/{category_id}",
         json={
-            "id": created["data"]["id"],
             "name": "Software Corporativo",
             "is_active": False,
         },
@@ -94,6 +88,7 @@ def test_update_category_returns_updated_category() -> None:
 
     assert response.status_code == 200
     assert body["success"] is True
+    assert body["data"]["id"] == 1
     assert body["message"] == "Categoria atualizada com sucesso"
     assert body["data"]["name"] == "Software Corporativo"
     assert body["data"]["is_active"] is False

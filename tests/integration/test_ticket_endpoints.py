@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.infra.db.repositories.memory_database import ticket_db
+from app.infra.db.repositories.memory_database import category_db, ticket_db
 from app.main import API_PREFIX, app
 
 client = TestClient(app)
@@ -12,9 +12,31 @@ def _reset_ticket_memory() -> None:
     ticket_db.tickets.clear()
 
 
-def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
+def _reset_category_memory() -> None:
+    category_db.id_counter = 0
+    category_db.categories.clear()
+
+
+@pytest.fixture(autouse=True)
+def reset_memory() -> None:
+    _reset_category_memory()
     _reset_ticket_memory()
 
+
+def _create_category() -> int:
+    response = client.post(
+        f"{API_PREFIX}/category",
+        json={
+            "name": "Hardware",
+            "description": "Categoria para testes",
+            "is_active": True,
+        },
+    )
+    body = response.json()
+    return int(body["data"]["id"])
+
+
+def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
     response = client.get(f"{API_PREFIX}/ticket")
 
     assert response.status_code == 200
@@ -26,14 +48,13 @@ def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
 
 
 def test_create_ticket_returns_created_ticket() -> None:
-    _reset_ticket_memory()
+    category_id = _create_category()
 
     payload: dict[str, str | int] = {
         "title": "Notebook sem acesso",
         "description": "Usuário nao consegue entrar no equipamento",
-        "category_id": 1,
+        "category_id": category_id,
         "priority": "high",
-        "status": "open",
     }
 
     response = client.post(f"{API_PREFIX}/ticket", json=payload)
@@ -44,22 +65,20 @@ def test_create_ticket_returns_created_ticket() -> None:
     assert body["message"] == "Ticket criado com sucesso"
     assert body["data"]["id"] == 1
     assert body["data"]["title"] == "Notebook sem acesso"
-    assert body["data"]["category_id"] == 1
+    assert body["data"]["category_id"] == category_id
     assert body["data"]["priority"] == "high"
-    assert body["data"]["status"] == "open"
 
 
 def test_get_ticket_by_id_returns_ticket_details() -> None:
-    _reset_ticket_memory()
+    category_id = _create_category()
 
     created = client.post(
         f"{API_PREFIX}/ticket",
         json={
             "title": "Email bloqueado",
             "description": "Nao recebe mensagens externas",
-            "category_id": 2,
+            "category_id": category_id,
             "priority": "medium",
-            "status": "open",
         },
     ).json()
 
@@ -75,23 +94,23 @@ def test_get_ticket_by_id_returns_ticket_details() -> None:
 
 
 def test_update_ticket_returns_updated_ticket() -> None:
-    _reset_ticket_memory()
+    category_id = _create_category()
 
     created = client.post(
         f"{API_PREFIX}/ticket",
         json={
             "title": "VPN instável",
             "description": "Conexão cai durante o expediente",
-            "category_id": 3,
+            "category_id": category_id,
             "priority": "low",
-            "status": "open",
         },
     ).json()
 
+    ticket_id = created["data"]["id"]
+
     response = client.patch(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/ticket/{ticket_id}",
         json={
-            "id": created["data"]["id"],
             "priority": "urgent",
             "status": "closed",
         },
