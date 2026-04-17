@@ -1,5 +1,3 @@
-# Validar título, descrição, prioridade e categoria
-
 from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -33,26 +31,8 @@ class TicketCreateRequest(BaseModel):
     def validate_optional_description(cls, value: str) -> str:
         return value.strip()
 
-    @field_validator("category_id")
-    @classmethod
-    def validate_category_id(cls, value: int | None) -> int | None:
-        if value is None:
-            raise ValueError("Category ID must be informed.")
-        if value <= 0:
-            raise ValueError("Category ID must be a positive integer.")
-        return value
-
-    @field_validator("priority")
-    @classmethod
-    def validate_priority(cls, value: TicketPriority | None) -> TicketPriority | None:
-        if value is None:
-            raise ValueError("Priority must be informed.")
-
-        return value
-
 
 class TicketUpdateRequest(BaseModel):
-    id: int = Field(..., description="The ID of the ticket to update.")
     category_id: int | None = Field(
         default=None,
         gt=0,
@@ -60,22 +40,6 @@ class TicketUpdateRequest(BaseModel):
     )
     priority: TicketPriority | None = None
     status: TicketStatus | None = None
-
-    @field_validator("id")
-    @classmethod
-    def validate_id(cls, value: int) -> int:
-        if value <= 0:
-            raise ValueError("Ticket ID must be a positive integer.")
-        return value
-
-    @field_validator("category_id")
-    @classmethod
-    def validate_category_id(cls, value: int | None) -> int | None:
-        if value is None:
-            return value
-        if value <= 0:
-            raise ValueError("Category ID must be a positive integer.")
-        return value
 
     @model_validator(mode="after")
     def validate_at_least_one_field(self) -> "TicketUpdateRequest":

@@ -84,10 +84,11 @@ def get_ticket_by_id(
 )
 @inject
 def update_ticket(
+    ticket_id: int,
     request: TicketUpdateRequest,
     use_case: UpdateTicketUseCase = Depends(Provide[Container.update_ticket_use_case]),
 ) -> ApiResponse[TicketResponse]:
     input_data = to_update_ticket_input(request)
-    updated_ticket = use_case.execute(input_data)
+    updated_ticket = use_case.execute(ticket_id, input_data)
     response = TicketResponse.model_validate(updated_ticket)
     return ApiResponse(message="Ticket atualizado com sucesso", data=response)

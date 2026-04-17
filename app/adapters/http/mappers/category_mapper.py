@@ -16,7 +16,6 @@ def to_create_category_input(request: CategoryCreateRequest) -> CreateCategoryIn
 
 def to_update_category_input(request: CategoryUpdateRequest) -> UpdateCategoryInput:
     return UpdateCategoryInput(
-        category_id=request.id,
         name=request.name,
         description=request.description,
         is_active=request.is_active,

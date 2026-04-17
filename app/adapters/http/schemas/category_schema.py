@@ -1,7 +1,3 @@
-# CategoryCreateRequest
-# CategoryUpdateRequest
-# CategoryResponse
-
 from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -31,7 +27,6 @@ class CategoryCreateRequest(BaseModel):
 
 
 class CategoryUpdateRequest(BaseModel):
-    id: int = Field(..., description="The ID of the category to update.")
     name: str | None = Field(
         default=None, min_length=1, max_length=100, description="Short category name."
     )
@@ -45,25 +40,24 @@ class CategoryUpdateRequest(BaseModel):
         default=None, description="Indicates if the category is active."
     )
 
-    @field_validator("id")
-    @classmethod
-    def validate_id(cls, value: int) -> int:
-        if value <= 0:
-            raise ValueError("Category ID must be a positive integer.")
-        return value
-
     @field_validator("name")
     @classmethod
     def validate_name(cls, value: str | None) -> str | None:
         if value is None:
             return value
-        return value.strip()
+
+        cleaned_value = value.strip()
+        if not cleaned_value:
+            raise ValueError("Category name cannot be empty or blank.")
+
+        return cleaned_value
 
     @field_validator("description")
     @classmethod
     def validate_description(cls, value: str | None) -> str | None:
         if value is None:
             return value
+
         return value.strip()
 
     @model_validator(mode="after")

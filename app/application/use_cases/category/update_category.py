@@ -8,7 +8,6 @@ from app.domain.entities.category import Category
 
 @dataclass(slots=True)
 class UpdateCategoryInput:
-    category_id: int
     name: str | None
     description: str | None
     is_active: bool | None
@@ -18,9 +17,9 @@ class UpdateCategoryUseCase:
     def __init__(self, repository: CategoryRepository) -> None:
         self._category_repository = repository
 
-    def execute(self, input_data: UpdateCategoryInput) -> Category:
+    def execute(self, category_id: int, input_data: UpdateCategoryInput) -> Category:
 
-        existing_category = self._category_repository.get_by_id(input_data.category_id)
+        existing_category = self._category_repository.get_by_id(category_id)
 
         if input_data.name is not None:
             existing_category.name = input_data.name

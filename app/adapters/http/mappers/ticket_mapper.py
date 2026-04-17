@@ -17,7 +17,6 @@ def to_create_ticket_input(request: TicketCreateRequest) -> CreateTicketInput:
 
 def to_update_ticket_input(request: TicketUpdateRequest) -> UpdateTicketInput:
     return UpdateTicketInput(
-        ticket_id=request.id,
         category_id=request.category_id,
         priority=request.priority,
         status=request.status,

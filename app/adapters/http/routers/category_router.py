@@ -90,12 +90,13 @@ def get_category_by_id(
 )
 @inject
 def update_category(
+    category_id: int,
     request: CategoryUpdateRequest,
     use_case: UpdateCategoryUseCase = Depends(
         Provide[Container.update_category_use_case]
     ),  # noqa: E501
 ) -> ApiResponse[CategoryResponse]:
     input_data = to_update_category_input(request)
-    updated_category = use_case.execute(input_data)
+    updated_category = use_case.execute(category_id, input_data)
     response = CategoryResponse.model_validate(updated_category)
     return ApiResponse(message="Categoria atualizada com sucesso", data=response)
