@@ -13,27 +13,16 @@ from app.infra.db.repositories.ticket_repository import InMemoryTicketRepository
 
 
 class Container(containers.DeclarativeContainer):
-    # 1. Configuração de fiação (Wiring)
-    # Isso diz ao container quais arquivos usarão o @inject
-    # Normalmente apontamos para os módulos de rotas
-    wiring_config = containers.WiringConfiguration(
-        modules=[
-            "app.adapters.http.routers.ticket_router",
-            "app.adapters.http.routers.category_router",
-        ]
-    )
+    """
+    Container de dependências para a aplicação.
+    """
 
-    # 2. Providers de Infraestrutura
-    # Usamos Singleton para o repositório em memória, pois queremos que todos
-    # os Use Cases acessem a mesma "lista" de tickets.
     ticket_repo = providers.Singleton(InMemoryTicketRepository)
     category_repo = providers.Singleton(InMemoryCategoryRepository)
 
-    # 3. Providers de Application (Use Cases)
-    # Usamos Factory para criar uma nova instância do Use Case a cada requisição
     create_ticket_use_case = providers.Factory(
         CreateTicketUseCase,
-        ticket_repo=ticket_repo,  # Aqui injetamos o repositório definido acima
+        ticket_repo=ticket_repo,
         category_repo=category_repo,
     )
 

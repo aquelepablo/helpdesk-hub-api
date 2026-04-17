@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from app.adapters.http.exception_handlers.handlers import register_exception_handlers
 from app.adapters.http.routers import category_router, system_router, ticket_router
 from app.infra.bootstrap.seed_categories import seed_categories
+from app.infra.container import Container
 from app.infra.settings.project_metadata import project_metadata
 
 API_PREFIX = "/api/v1"
@@ -18,6 +19,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
+    """
+    Create and configure the FastAPI application.
+    This function sets up the application with necessary configurations, including
+
+    Returns:
+        FastAPI: An instance of the FastAPI application ready to be run.
+    """
+    container = Container()
+    container.wire(modules=[category_router, ticket_router])
 
     app = FastAPI(
         title=project_metadata.title,
