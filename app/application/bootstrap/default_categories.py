@@ -1,4 +1,13 @@
-DEFAULT_CATEGORIES: list[dict[str, str | bool]] = [
+from typing import TypedDict
+
+
+class DefaultCategory(TypedDict):
+    name: str
+    description: str
+    is_active: bool
+
+
+DEFAULT_CATEGORIES: list[DefaultCategory] = [
     {
         "name": "Acesso a Sistemas",
         "description": (
