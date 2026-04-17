@@ -14,8 +14,8 @@ class CreateCategoryInput:
 
 
 class CreateCategoryUseCase:
-    def __init__(self, repository: CategoryRepository) -> None:
-        self._category_repository = repository
+    def __init__(self, category_repository: CategoryRepository) -> None:
+        self._category_repository = category_repository
 
     def execute(self, input_data: CreateCategoryInput) -> Category:
 

@@ -5,8 +5,8 @@ from app.domain.entities.category import Category
 
 
 class ListCategoriesUseCase:
-    def __init__(self, repository: CategoryRepository) -> None:
-        self._category_repository = repository
+    def __init__(self, category_repository: CategoryRepository) -> None:
+        self._category_repository = category_repository
 
     def execute(self) -> list[Category]:
 

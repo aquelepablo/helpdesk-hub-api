@@ -17,37 +17,41 @@ class Container(containers.DeclarativeContainer):
     Container de dependências para a aplicação.
     """
 
-    ticket_repo = providers.Singleton(InMemoryTicketRepository)
-    category_repo = providers.Singleton(InMemoryCategoryRepository)
+    ticket_repository = providers.Singleton(InMemoryTicketRepository)
+    category_repository = providers.Singleton(InMemoryCategoryRepository)
 
     create_ticket_use_case = providers.Factory(
         CreateTicketUseCase,
-        ticket_repo=ticket_repo,
-        category_repo=category_repo,
+        ticket_repository=ticket_repository,
+        category_repository=category_repository,
     )
 
     update_ticket_use_case = providers.Factory(
-        UpdateTicketUseCase, ticket_repo=ticket_repo, category_repo=category_repo
+        UpdateTicketUseCase,
+        ticket_repository=ticket_repository,
+        category_repository=category_repository,
     )
 
-    list_tickets_use_case = providers.Factory(ListTicketsUseCase, repo=ticket_repo)
+    list_tickets_use_case = providers.Factory(
+        ListTicketsUseCase, ticket_repository=ticket_repository
+    )
 
     get_ticket_by_id_use_case = providers.Factory(
-        GetTicketByIdUseCase, repo=ticket_repo
+        GetTicketByIdUseCase, ticket_repository=ticket_repository
     )
 
     create_category_use_case = providers.Factory(
-        CreateCategoryUseCase, repo=category_repo
+        CreateCategoryUseCase, category_repository=category_repository
     )
 
     update_category_use_case = providers.Factory(
-        UpdateCategoryUseCase, repo=category_repo
+        UpdateCategoryUseCase, category_repository=category_repository
     )
 
     list_categories_use_case = providers.Factory(
-        ListCategoriesUseCase, repo=category_repo
+        ListCategoriesUseCase, category_repository=category_repository
     )
 
     get_category_by_id_use_case = providers.Factory(
-        GetCategoryByIdUseCase, repo=category_repo
+        GetCategoryByIdUseCase, category_repository=category_repository
     )

@@ -14,8 +14,8 @@ class UpdateCategoryInput:
 
 
 class UpdateCategoryUseCase:
-    def __init__(self, repository: CategoryRepository) -> None:
-        self._category_repository = repository
+    def __init__(self, category_repository: CategoryRepository) -> None:
+        self._category_repository = category_repository
 
     def execute(self, category_id: int, input_data: UpdateCategoryInput) -> Category:
 

@@ -20,10 +20,12 @@ class CreateTicketInput:
 
 class CreateTicketUseCase:
     def __init__(
-        self, ticket_repo: TicketRepository, category_repo: CategoryRepository
+        self,
+        ticket_repository: TicketRepository,
+        category_repository: CategoryRepository,
     ) -> None:
-        self._ticket_repo = ticket_repo
-        self._category_repo = category_repo
+        self._ticket_repo = ticket_repository
+        self._category_repo = category_repository
 
     def execute(self, input_data: CreateTicketInput) -> Ticket:
 
