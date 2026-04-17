@@ -38,3 +38,23 @@ def test_update_ticket_schema_accepts_only_status() -> None:
 def test_update_ticket_schema_rejects_non_positive_category_id() -> None:
     with pytest.raises(ValidationError):
         TicketUpdateRequest(category_id=0)
+
+
+def test_update_ticket_schema_rejects_extra_fields() -> None:
+    payload: dict[str, object] = {
+        "priority": "high",
+        "title": "Invalid extra field",
+    }
+
+    with pytest.raises(ValidationError):
+        TicketUpdateRequest.model_validate(payload)
+
+
+def test_update_ticket_schema_rejects_id_in_body() -> None:
+    payload: dict[str, object] = {
+        "id": 1,
+        "name": "Updated ticket",
+    }
+
+    with pytest.raises(ValidationError):
+        TicketUpdateRequest.model_validate(payload)

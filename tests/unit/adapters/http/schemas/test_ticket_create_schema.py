@@ -27,3 +27,16 @@ def test_create_ticket_schema_rejects_blank_title() -> None:
             category_id=1,
             priority=TicketPriority.HIGH,
         )
+
+
+def test_create_ticket_schema_rejects_extra_fields() -> None:
+    payload: dict[str, object] = {
+        "title": "Test Ticket",
+        "description": "A ticket for testing purposes",
+        "category_id": 1,
+        "priority": "high",
+        "status": "closed",
+    }
+
+    with pytest.raises(ValidationError):
+        TicketCreateRequest.model_validate(payload)

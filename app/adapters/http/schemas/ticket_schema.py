@@ -7,6 +7,8 @@ from app.domain.enum.ticket_status import TicketStatus
 
 
 class TicketCreateRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
     title: str = Field(
         ..., min_length=1, max_length=255, description="Short ticket name."
     )
@@ -33,6 +35,8 @@ class TicketCreateRequest(BaseModel):
 
 
 class TicketUpdateRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
     category_id: int | None = Field(
         default=None,
         gt=0,

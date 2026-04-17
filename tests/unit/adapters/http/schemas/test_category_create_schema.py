@@ -23,3 +23,15 @@ def test_create_category_schema_rejects_blank_name() -> None:
             description="A category with blank name",
             is_active=True,
         )
+
+
+def test_create_category_schema_rejects_extra_fields() -> None:
+    payload: dict[str, object] = {
+        "name": "Test Category",
+        "description": "A category for testing purposes",
+        "is_active": True,
+        "priority": "high",
+    }
+
+    with pytest.raises(ValidationError):
+        CategoryCreateRequest.model_validate(payload)

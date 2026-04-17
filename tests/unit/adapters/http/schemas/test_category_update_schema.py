@@ -44,3 +44,23 @@ def test_update_category_schema_accepts_only_is_active() -> None:
 def test_update_category_schema_rejects_blank_name() -> None:
     with pytest.raises(ValidationError):
         CategoryUpdateRequest(name=" ")
+
+
+def test_update_category_schema_rejects_extra_fields() -> None:
+    payload: dict[str, object] = {
+        "name": "Updated category",
+        "priority": "high",
+    }
+
+    with pytest.raises(ValidationError):
+        CategoryUpdateRequest.model_validate(payload)
+
+
+def test_update_category_schema_rejects_id_in_body() -> None:
+    payload: dict[str, object] = {
+        "id": 1,
+        "name": "Updated category",
+    }
+
+    with pytest.raises(ValidationError):
+        CategoryUpdateRequest.model_validate(payload)

@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class CategoryCreateRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
     name: str = Field(
         ..., min_length=1, max_length=100, description="Short category name."
     )
@@ -27,6 +29,8 @@ class CategoryCreateRequest(BaseModel):
 
 
 class CategoryUpdateRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
     name: str | None = Field(
         default=None, min_length=1, max_length=100, description="Short category name."
     )
