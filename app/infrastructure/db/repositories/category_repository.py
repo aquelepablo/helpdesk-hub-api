@@ -23,7 +23,7 @@ class InMemoryCategoryRepository:
 
         stored_category = category_db.add(category)
 
-        return stored_category
+        return copy.deepcopy(stored_category)
 
     def _update(self, category_id: int, updated_category: Category) -> Category:
         stored_category = self._find_stored_category_by_id(category_id)
