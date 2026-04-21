@@ -4,7 +4,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.exception_handlers.handlers import register_exception_handlers
-from app.api.routers import category_router, system_router, ticket_router
+from app.api.routers import (
+    category_router,
+    comment_router,
+    system_router,
+    ticket_router,
+)
 from app.infrastructure.bootstrap.seed_categories import seed_categories
 from app.infrastructure.container import Container
 from app.infrastructure.settings.project_metadata import project_metadata
@@ -27,7 +32,7 @@ def create_app() -> FastAPI:
         FastAPI: An instance of the FastAPI application ready to be run.
     """
     container = Container()
-    container.wire(modules=[category_router, ticket_router])
+    container.wire(modules=[category_router, ticket_router, comment_router])
 
     app = FastAPI(
         title=project_metadata.title,
@@ -43,6 +48,7 @@ def create_app() -> FastAPI:
     app.include_router(system_router.router, prefix=API_PREFIX)
     app.include_router(category_router.router, prefix=API_PREFIX)
     app.include_router(ticket_router.router, prefix=API_PREFIX)
+    app.include_router(comment_router.router, prefix=API_PREFIX)
 
     return app
 
