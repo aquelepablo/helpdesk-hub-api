@@ -1,4 +1,4 @@
-from app.application.use_cases.ticket.repository.ticket_repository import (
+from app.application.ports.ticket_repository import (
     TicketRepository,
 )
 from app.domain.entities.ticket import Ticket

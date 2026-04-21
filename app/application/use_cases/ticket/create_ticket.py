@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from app.application.use_cases.category.repositories.category_repository import (
+from app.application.ports.category_repository import (
     CategoryRepository,
 )
-from app.application.use_cases.ticket.repository.ticket_repository import (
+from app.application.ports.ticket_repository import (
     TicketRepository,
 )
 from app.domain.entities.ticket import Ticket
