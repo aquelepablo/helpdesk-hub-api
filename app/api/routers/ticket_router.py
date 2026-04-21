@@ -8,11 +8,13 @@ from app.api.docs.error_responses import (
 )
 from app.api.mappers.ticket_mapper import (
     to_create_ticket_input,
+    to_list_ticket_input,
     to_update_ticket_input,
 )
 from app.api.schemas.common_schema import ApiResponse
 from app.api.schemas.ticket_schema import (
     TicketCreateRequest,
+    TicketFilterRequest,
     TicketResponse,
     TicketUpdateRequest,
 )
@@ -32,9 +34,11 @@ router = APIRouter(prefix="/ticket", tags=["tickets"])
 )
 @inject
 def list_tickets(
+    filters: TicketFilterRequest = Depends(),
     use_case: ListTicketsUseCase = Depends(Provide[Container.list_tickets_use_case]),
 ) -> ApiResponse[list[TicketResponse]]:
-    tickets = use_case.execute()
+    input_data = to_list_ticket_input(filters)
+    tickets = use_case.execute(input_data)
     responses = [TicketResponse.model_validate(ticket) for ticket in tickets]
     return ApiResponse(
         message="Listagem de tickets realizada com sucesso", data=responses

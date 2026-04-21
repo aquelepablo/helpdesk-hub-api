@@ -57,6 +57,14 @@ class TicketUpdateRequest(BaseModel):
         return self
 
 
+class TicketFilterRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    status: TicketStatus | None = None
+    priority: TicketPriority | None = None
+    category_id: int | None = Field(default=None, gt=0)
+
+
 class TicketResponse(BaseModel):
     id: int
     title: str

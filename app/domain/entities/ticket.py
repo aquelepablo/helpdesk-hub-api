@@ -15,3 +15,10 @@ class Ticket:
     status: TicketStatus = TicketStatus.OPEN
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+
+@dataclass(slots=True)
+class TicketFilter:
+    status: TicketStatus | None = None
+    priority: TicketPriority | None = None
+    category_id: int | None = None

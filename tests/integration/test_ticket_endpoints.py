@@ -19,6 +19,30 @@ def _create_category() -> int:
     return int(body["data"]["id"])
 
 
+def _create_ticket(
+    *,
+    title: str,
+    category_id: int,
+    priority: str,
+) -> int:
+    response = client.post(
+        f"{API_PREFIX}/ticket",
+        json={
+            "title": title,
+            "description": "Ticket criado para teste de filtro",
+            "category_id": category_id,
+            "priority": priority,
+        },
+    )
+
+    assert response.status_code == 201, {
+        "status_code": response.status_code,
+        "body": response.json(),
+    }
+
+    return int(response.json()["data"]["id"])
+
+
 def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
     response = client.get(f"{API_PREFIX}/ticket")
 
@@ -119,3 +143,134 @@ def test_get_ticket_by_id_returns_not_found_for_unknown_id() -> None:
 @pytest.mark.skip(reason="Definir comportamento para update de ticket inexistente.")
 def test_update_ticket_returns_not_found_for_unknown_id() -> None:
     pass
+
+
+def test_list_tickets_filters_by_status() -> None:
+    category_id = _create_category()
+    open_ticket_id = _create_ticket(
+        title="Monitor sem imagem",
+        category_id=category_id,
+        priority="low",
+    )
+    closed_ticket_id = _create_ticket(
+        title="VPN indisponível",
+        category_id=category_id,
+        priority="high",
+    )
+
+    client.patch(
+        f"{API_PREFIX}/ticket/{closed_ticket_id}",
+        json={"status": "closed"},
+    )
+
+    response = client.get(f"{API_PREFIX}/ticket", params={"status": "open"})
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["success"] is True
+    assert len(body["data"]) == 1
+    assert body["data"][0]["id"] == open_ticket_id
+    assert body["data"][0]["status"] == "open"
+
+
+def test_list_tickets_filters_by_priority() -> None:
+    category_id = _create_category()
+    _create_ticket(
+        title="Teclado com falha",
+        category_id=category_id,
+        priority="low",
+    )
+    high_priority_ticket_id = _create_ticket(
+        title="Sistema financeiro fora",
+        category_id=category_id,
+        priority="high",
+    )
+
+    response = client.get(f"{API_PREFIX}/ticket", params={"priority": "high"})
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["success"] is True
+    assert len(body["data"]) == 1
+    assert body["data"][0]["id"] == high_priority_ticket_id
+    assert body["data"][0]["priority"] == "high"
+
+
+def test_list_tickets_filters_by_category() -> None:
+    hardware_category_id = _create_category()
+    software_category = client.post(
+        f"{API_PREFIX}/category",
+        json={
+            "name": "Software",
+            "description": "Categoria para sistemas",
+            "is_active": True,
+        },
+    ).json()
+    software_category_id = software_category["data"]["id"]
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    expected_ticket_id = _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="high",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/ticket", params={"category_id": software_category_id}
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["success"] is True
+    assert len(body["data"]) == 1
+    assert body["data"][0]["id"] == expected_ticket_id
+    assert body["data"][0]["priority"] == "high"
+
+
+def test_list_tickets_filters_by_category_and_priority() -> None:
+    hardware_category_id = _create_category()
+    software_category = client.post(
+        f"{API_PREFIX}/category",
+        json={
+            "name": "Software",
+            "description": "Categoria para sistemas",
+            "is_active": True,
+        },
+    ).json()
+    software_category_id = software_category["data"]["id"]
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    expected_ticket_id = _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="high",
+    )
+    _create_ticket(
+        title="Editor travando",
+        category_id=software_category_id,
+        priority="low",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/ticket",
+        params={
+            "category_id": software_category_id,
+            "priority": "high",
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["success"] is True
+    assert len(body["data"]) == 1
+    assert body["data"][0]["id"] == expected_ticket_id
+    assert body["data"][0]["category_id"] == software_category_id
+    assert body["data"][0]["priority"] == "high"
