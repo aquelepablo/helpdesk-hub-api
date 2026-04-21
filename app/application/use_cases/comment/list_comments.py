@@ -1,7 +1,7 @@
-from app.application.ports.comment_repository import (
+from app.application.interfaces.repositories.comment_repository import (
     CommentRepository,
 )
-from app.application.ports.ticket_repository import TicketRepository
+from app.application.interfaces.repositories.ticket_repository import TicketRepository
 from app.domain.entities.comment import Comment
 
 

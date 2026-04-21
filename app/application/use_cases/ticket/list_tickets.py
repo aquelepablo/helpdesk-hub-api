@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.ports.ticket_repository import (
+from app.application.interfaces.repositories.ticket_repository import (
     TicketRepository,
 )
 from app.domain.entities.ticket import Ticket, TicketFilter

@@ -1,4 +1,4 @@
-from app.application.ports.category_repository import (
+from app.application.interfaces.repositories.category_repository import (
     CategoryRepository,
 )
 from app.domain.entities.category import Category

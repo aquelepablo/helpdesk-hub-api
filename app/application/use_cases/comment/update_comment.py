@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.ports.comment_repository import (
+from app.application.interfaces.repositories.comment_repository import (
     CommentRepository,
 )
 from app.domain.entities.comment import Comment
