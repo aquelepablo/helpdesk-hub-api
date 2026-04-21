@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from app.infra.settings.project_metadata import project_metadata
-from app.infra.settings.settings import settings
+from app.infrastructure.settings.project_metadata import project_metadata
+from app.infrastructure.settings.settings import settings
 from app.main import API_PREFIX, app
 
 client = TestClient(app)

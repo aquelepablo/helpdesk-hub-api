@@ -4,8 +4,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.adapters.http.exception_handlers.http_errors import map_domain_error_to_http
-from app.adapters.http.schemas.common_schema import (
+from app.api.exception_handlers.http_errors import map_domain_error_to_http
+from app.api.schemas.common_schema import (
     ErrorDetails,
     ErrorItem,
     ErrorResponse,

@@ -1,6 +1,8 @@
 from app.application.bootstrap.default_categories import DEFAULT_CATEGORIES
 from app.domain.entities.category import Category
-from app.infra.db.repositories.category_repository import InMemoryCategoryRepository
+from app.infrastructure.db.repositories.category_repository import (
+    InMemoryCategoryRepository,
+)
 
 
 def seed_categories() -> None:

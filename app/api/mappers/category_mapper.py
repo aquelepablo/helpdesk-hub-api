@@ -1,4 +1,4 @@
-from app.adapters.http.schemas.category_schema import (
+from app.api.schemas.category_schema import (
     CategoryCreateRequest,
     CategoryUpdateRequest,
 )

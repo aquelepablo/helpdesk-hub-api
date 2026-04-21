@@ -77,14 +77,14 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = [
-    "app.infra.container",
-    "app.infra.settings.settings",
+    "app.infrastructure.container",
+    "app.infrastructure.settings.settings",
 ]
 disallow_subclassing_any = false
 
 [[tool.mypy.overrides]]
 module = [
-    "app.adapters.http.routers.*",
+    "app.api.routers.*",
     "tests.*",
 ]
 disallow_untyped_decorators = false

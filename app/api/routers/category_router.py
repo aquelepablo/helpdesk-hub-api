@@ -1,26 +1,26 @@
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, status
 
-from app.adapters.http.docs.error_responses import (
+from app.api.docs.error_responses import (
     CREATE_RESPONSES,
     GET_BY_ID_RESPONSES,
     UPDATE_RESPONSES,
 )
-from app.adapters.http.mappers.category_mapper import (
+from app.api.mappers.category_mapper import (
     to_create_category_input,
     to_update_category_input,
 )
-from app.adapters.http.schemas.category_schema import (
+from app.api.schemas.category_schema import (
     CategoryCreateRequest,
     CategoryResponse,
     CategoryUpdateRequest,
 )
-from app.adapters.http.schemas.common_schema import ApiResponse
+from app.api.schemas.common_schema import ApiResponse
 from app.application.use_cases.category.create_category import CreateCategoryUseCase
 from app.application.use_cases.category.get_category_by_id import GetCategoryByIdUseCase
 from app.application.use_cases.category.list_categories import ListCategoriesUseCase
 from app.application.use_cases.category.update_category import UpdateCategoryUseCase
-from app.infra.container import Container
+from app.infrastructure.container import Container
 
 router = APIRouter(prefix="/category", tags=["categories"])
 

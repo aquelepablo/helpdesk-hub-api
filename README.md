@@ -59,7 +59,7 @@ The system is expected to include features such as:
 
 ## Configuration
 
-Application settings are centralized under `app/infra/settings`.
+Application settings are centralized under `app/infrastructure/settings`.
 
 Use a local `.env` file in the project root for environment-specific values and keep `.env.example` as the versioned reference.
 
@@ -75,23 +75,25 @@ The project follows an initial Clean Architecture-oriented layout:
 
 ```text
 app/
-  adapters/
-    http/
-      routers/
-      schemas/
   application/
     use_cases/
+  api/
+    docs/
+    exception_handlers/
+    mappers/
+    routers/
+    schemas/
   domain/
     entities/
-  infra/
+  infrastructure/
+    bootstrap/
     db/
     logging/
     settings/
   main.py
-main.py
 ```
 
-See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for a more detailed explanation of the current structure and responsibilities.
+See [Project Structure](PROJECT_STRUCTURE.md) and [Clean Architecture Map](docs/dev/clean-architecture-map.md) for a more detailed explanation of the current structure and responsibilities.
 
 ## Running Locally
 

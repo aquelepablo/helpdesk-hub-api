@@ -3,11 +3,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.adapters.http.exception_handlers.handlers import register_exception_handlers
-from app.adapters.http.routers import category_router, system_router, ticket_router
-from app.infra.bootstrap.seed_categories import seed_categories
-from app.infra.container import Container
-from app.infra.settings.project_metadata import project_metadata
+from app.api.exception_handlers.handlers import register_exception_handlers
+from app.api.routers import category_router, system_router, ticket_router
+from app.infrastructure.bootstrap.seed_categories import seed_categories
+from app.infrastructure.container import Container
+from app.infrastructure.settings.project_metadata import project_metadata
 
 API_PREFIX = "/api/v1"
 

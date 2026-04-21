@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from app.domain.entities.category import Category
 from app.domain.exceptions.category_exceptions import CategoryNotFoundError
-from app.infra.db.repositories.memory_database import category_db
+from app.infrastructure.db.repositories.memory_database import category_db
 
 
 class InMemoryCategoryRepository:

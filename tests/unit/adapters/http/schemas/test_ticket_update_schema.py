@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.adapters.http.schemas.ticket_schema import TicketUpdateRequest
+from app.api.schemas.ticket_schema import TicketUpdateRequest
 from app.domain.enum.ticket_priority import TicketPriority
 from app.domain.enum.ticket_status import TicketStatus
 

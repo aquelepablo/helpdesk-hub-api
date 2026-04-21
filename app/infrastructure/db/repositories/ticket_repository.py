@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from app.domain.entities.ticket import Ticket
 from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
-from app.infra.db.repositories.memory_database import ticket_db
+from app.infrastructure.db.repositories.memory_database import ticket_db
 
 
 class InMemoryTicketRepository:

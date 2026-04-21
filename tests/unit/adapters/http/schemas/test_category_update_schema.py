@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.adapters.http.schemas.category_schema import CategoryUpdateRequest
+from app.api.schemas.category_schema import CategoryUpdateRequest
 
 
 def test_update_category_schema_requires_at_least_one_field() -> None:

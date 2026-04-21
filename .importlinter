@@ -6,7 +6,7 @@ include_external_packages = True
 name = Inner layers must point inward
 type = layers
 layers =
-    app.adapters
+    app.api
     app.application
     app.domain
 
@@ -17,8 +17,8 @@ source_modules =
     app.domain
 forbidden_modules =
     app.application
-    app.adapters
-    app.infra
+    app.api
+    app.infrastructure
     fastapi
     sqlalchemy
     alembic
@@ -30,8 +30,8 @@ type = forbidden
 source_modules =
     app.application
 forbidden_modules =
-    app.adapters
-    app.infra
+    app.api
+    app.infrastructure
     fastapi
     sqlalchemy
     alembic

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.adapters.http.schemas.category_schema import CategoryCreateRequest
+from app.api.schemas.category_schema import CategoryCreateRequest
 
 
 def test_create_category_schema_accepts_valid_data() -> None:

@@ -1,6 +1,6 @@
 from fastapi import status
 
-from app.adapters.http.schemas.common_schema import ErrorItem
+from app.api.schemas.common_schema import ErrorItem
 from app.domain.exceptions.base_exceptions import (
     BusinessValidationError,
     DomainError,

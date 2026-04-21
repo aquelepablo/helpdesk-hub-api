@@ -1,6 +1,6 @@
 from fastapi import status
 
-from app.adapters.http.schemas.common_schema import ErrorResponse
+from app.api.schemas.common_schema import ErrorResponse
 
 CREATE_RESPONSES: dict[int, dict[str, type | str]] = {
     status.HTTP_400_BAD_REQUEST: {

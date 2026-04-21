@@ -1,17 +1,17 @@
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, status
 
-from app.adapters.http.docs.error_responses import (
+from app.api.docs.error_responses import (
     CREATE_RESPONSES,
     GET_BY_ID_RESPONSES,
     UPDATE_RESPONSES,
 )
-from app.adapters.http.mappers.ticket_mapper import (
+from app.api.mappers.ticket_mapper import (
     to_create_ticket_input,
     to_update_ticket_input,
 )
-from app.adapters.http.schemas.common_schema import ApiResponse
-from app.adapters.http.schemas.ticket_schema import (
+from app.api.schemas.common_schema import ApiResponse
+from app.api.schemas.ticket_schema import (
     TicketCreateRequest,
     TicketResponse,
     TicketUpdateRequest,
@@ -20,7 +20,7 @@ from app.application.use_cases.ticket.create_ticket import CreateTicketUseCase
 from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
 from app.application.use_cases.ticket.list_tickets import ListTicketsUseCase
 from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
-from app.infra.container import Container
+from app.infrastructure.container import Container
 
 router = APIRouter(prefix="/ticket", tags=["tickets"])
 

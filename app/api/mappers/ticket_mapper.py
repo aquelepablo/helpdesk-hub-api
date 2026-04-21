@@ -1,4 +1,4 @@
-from app.adapters.http.schemas.ticket_schema import (
+from app.api.schemas.ticket_schema import (
     TicketCreateRequest,
     TicketUpdateRequest,
 )

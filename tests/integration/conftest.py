@@ -1,6 +1,6 @@
 import pytest
 
-from app.infra.db.repositories.memory_database import category_db, ticket_db
+from app.infrastructure.db.repositories.memory_database import category_db, ticket_db
 
 
 @pytest.fixture(autouse=True)
