@@ -1,14 +1,37 @@
-# Python-generated files
+# Python cache
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+
+# Build artifacts
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
 
 # Virtual environments
-.venv
+.venv/
+venv/
+env/
 
-#Others
-docs/dev
+# Test and coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+
+# Local environment
 .env
+.env.*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local docs/drafts
+docs/
