@@ -2,13 +2,13 @@ from fastapi.testclient import TestClient
 
 from app.infra.settings.project_metadata import project_metadata
 from app.infra.settings.settings import settings
-from app.main import app
+from app.main import API_PREFIX, app
 
 client = TestClient(app)
 
 
 def test_get_root_returns_service_metadata() -> None:
-    response = client.get("/")
+    response = client.get(API_PREFIX)
 
     assert response.status_code == 200
     assert response.json() == {
@@ -18,14 +18,14 @@ def test_get_root_returns_service_metadata() -> None:
 
 
 def test_get_liveness_returns_ok() -> None:
-    response = client.get("/live")
+    response = client.get(f"{API_PREFIX}/live")
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
 
 def test_get_health_returns_structured_payload() -> None:
-    response = client.get("/health")
+    response = client.get(f"{API_PREFIX}/health")
 
     assert response.status_code == 200
     assert response.json() == {
@@ -35,7 +35,7 @@ def test_get_health_returns_structured_payload() -> None:
 
 
 def test_get_info_returns_application_metadata() -> None:
-    response = client.get("/info")
+    response = client.get(f"{API_PREFIX}/info")
 
     assert response.status_code == 200
     assert response.json() == {
@@ -47,7 +47,7 @@ def test_get_info_returns_application_metadata() -> None:
 
 
 def test_get_ping_returns_utc_timestamp() -> None:
-    response = client.get("/ping")
+    response = client.get(f"{API_PREFIX}/ping")
 
     assert response.status_code == 200
     body = response.json()
