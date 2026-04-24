@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import API_PREFIX, app
@@ -87,16 +86,66 @@ def test_update_category_returns_updated_category() -> None:
     assert body["data"]["is_active"] is False
 
 
-@pytest.mark.skip(reason="Definir contrato padronizado para erros de validação.")
 def test_create_category_returns_422_for_invalid_payload() -> None:
-    pass
+    response = client.post(
+        f"{API_PREFIX}/category",
+        json={
+            # name is missing
+            # description is missing
+            "is_active": True,
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_fields = {error["field"] for error in body["details"]["errors"]}
+
+    assert "name" in error_fields
 
 
-@pytest.mark.skip(reason="Definir comportamento para categoria inexistente.")
 def test_get_category_by_id_returns_not_found_for_unknown_id() -> None:
-    pass
+    invalid_category_id = 999
+
+    response = client.get(f"{API_PREFIX}/category/{invalid_category_id}")
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Category with id {invalid_category_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
 
 
-@pytest.mark.skip(reason="Definir comportamento para update de categoria inexistente.")
 def test_update_category_returns_not_found_for_unknown_id() -> None:
-    pass
+    invalid_category_id = 999
+
+    response = client.patch(
+        f"{API_PREFIX}/category/{invalid_category_id}",
+        json={
+            "name": "Acesso",
+            "description": "Permissões e credenciais",
+            "is_active": True,
+        },
+    )
+    body = response.json()
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Category with id {invalid_category_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes

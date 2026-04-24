@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import API_PREFIX, app
@@ -167,19 +166,72 @@ def test_update_ticket_returns_updated_ticket() -> None:
     assert body["data"]["status"] == "closed"
 
 
-@pytest.mark.skip(reason="Definir contrato padronizado para erros de validação.")
 def test_create_ticket_returns_422_for_invalid_payload() -> None:
-    pass
+    response = client.post(
+        f"{API_PREFIX}/ticket",
+        json={
+            "title": "Impressora sem toner",
+            # "description" is missing
+            "category_id": 999,  # Assuming this category does not exist
+            "priority": "invalid_priority",  # Invalid priority value
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_fields = {error["field"] for error in body["details"]["errors"]}
+
+    assert "description" in error_fields
+    assert "priority" in error_fields
 
 
-@pytest.mark.skip(reason="Definir comportamento para ticket inexistente.")
 def test_get_ticket_by_id_returns_not_found_for_unknown_id() -> None:
-    pass
+
+    invalid_ticket_id = 999
+
+    response = client.get(f"{API_PREFIX}/ticket/{invalid_ticket_id}")
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Ticket with id {invalid_ticket_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
 
 
-@pytest.mark.skip(reason="Definir comportamento para update de ticket inexistente.")
 def test_update_ticket_returns_not_found_for_unknown_id() -> None:
-    pass
+    invalid_ticket_id = 999
+
+    response = client.patch(
+        f"{API_PREFIX}/ticket/{invalid_ticket_id}",
+        json={
+            "priority": "urgent",
+            "status": "closed",
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Ticket with id {invalid_ticket_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
 
 
 def test_list_tickets_filters_by_status() -> None:

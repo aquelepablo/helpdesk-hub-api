@@ -1,3 +1,4 @@
+import logging
 from typing import cast
 
 from fastapi import FastAPI, Request, status
@@ -11,6 +12,8 @@ from app.api.schemas.common_schema import (
     ErrorResponse,
 )
 from app.domain.exceptions.base_exceptions import DomainError
+
+logger = logging.getLogger(__name__)
 
 
 def _build_error_response(
@@ -55,15 +58,17 @@ async def handle_request_validation_error(_: Request, exc: Exception) -> JSONRes
     )
 
 
-# TODO: Register error in log and let this handler generic
+# TODO: Send log do infra
 async def handle_unexpected_error(_: Request, exc: Exception) -> JSONResponse:
     """Handle unexpected errors without leaking internal details."""
+    logger.exception("Unexpected error while handling request")
+
     return _build_error_response(
         message="An unexpected error occurred.",
         errors=[
             ErrorItem(
                 code="unexpected_error",
-                message=str(exc),
+                message="Internal server error.",
                 field=None,
             )
         ],

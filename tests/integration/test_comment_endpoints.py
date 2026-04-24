@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import API_PREFIX, app
@@ -125,16 +124,61 @@ def test_update_comment_returns_updated_comment() -> None:
     assert body["data"]["content"] == "Comentário atualizado"
 
 
-@pytest.mark.skip(reason="Definir contrato padronizado para erros de validação.")
 def test_create_comment_returns_422_for_invalid_payload() -> None:
-    pass
+    ticket_id = 1
+    response = client.post(
+        f"{API_PREFIX}/ticket/{ticket_id}/comment",
+        json={"content": "Comentário", "invalid_field": ""},
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_fields = {error["field"] for error in body["details"]["errors"]}
+
+    assert "invalid_field" in error_fields
 
 
-@pytest.mark.skip(reason="Definir comportamento para ticket inexistente.")
 def test_list_comments_returns_not_found_for_unknown_ticket() -> None:
-    pass
+    invalid_ticket_id = 999
+
+    response = client.get(f"{API_PREFIX}/ticket/{invalid_ticket_id}/comment")
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Ticket with id {invalid_ticket_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
 
 
-@pytest.mark.skip(reason="Definir comportamento para comentário inexistente.")
 def test_update_comment_returns_not_found_for_unknown_comment() -> None:
-    pass
+    ticket_id = _create_ticket()
+    invalid_comment_id = 999
+
+    response = client.patch(
+        f"{API_PREFIX}/ticket/{ticket_id}/comment/{invalid_comment_id}",
+        json={"content": "Comentário atualizado"},
+    )
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Comment with id {invalid_comment_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
