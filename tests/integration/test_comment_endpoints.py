@@ -7,7 +7,7 @@ client = TestClient(app)
 
 def _create_category() -> int:
     response = client.post(
-        f"{API_PREFIX}/category",
+        f"{API_PREFIX}/categories",
         json={
             "name": "Hardware",
             "description": "Categoria para testes",
@@ -28,7 +28,7 @@ def _create_ticket() -> int:
     category_id = _create_category()
 
     response = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
             "title": "Notebook sem acesso",
             "description": "Usuário nao consegue entrar no equipamento",
@@ -49,7 +49,7 @@ def _create_ticket() -> int:
 def test_list_comments_returns_empty_list_when_ticket_has_no_comments() -> None:
     ticket_id = _create_ticket()
 
-    response = client.get(f"{API_PREFIX}/ticket/{ticket_id}/comment")
+    response = client.get(f"{API_PREFIX}/tickets/{ticket_id}/comments")
 
     assert response.status_code == 200
     assert response.json() == {
@@ -66,7 +66,7 @@ def test_create_comment_returns_created_comment() -> None:
         "content": "Primeiro comentário do ticket",
     }
 
-    response = client.post(f"{API_PREFIX}/ticket/{ticket_id}/comment", json=payload)
+    response = client.post(f"{API_PREFIX}/tickets/{ticket_id}/comments", json=payload)
     body = response.json()
 
     assert response.status_code == 201
@@ -81,15 +81,15 @@ def test_list_comments_returns_ticket_comments() -> None:
     ticket_id = _create_ticket()
 
     client.post(
-        f"{API_PREFIX}/ticket/{ticket_id}/comment",
+        f"{API_PREFIX}/tickets/{ticket_id}/comments",
         json={"content": "Primeiro comentário"},
     )
     client.post(
-        f"{API_PREFIX}/ticket/{ticket_id}/comment",
+        f"{API_PREFIX}/tickets/{ticket_id}/comments",
         json={"content": "Segundo comentário"},
     )
 
-    response = client.get(f"{API_PREFIX}/ticket/{ticket_id}/comment")
+    response = client.get(f"{API_PREFIX}/tickets/{ticket_id}/comments")
     body = response.json()
 
     assert response.status_code == 200
@@ -104,14 +104,14 @@ def test_update_comment_returns_updated_comment() -> None:
     ticket_id = _create_ticket()
 
     created = client.post(
-        f"{API_PREFIX}/ticket/{ticket_id}/comment",
+        f"{API_PREFIX}/tickets/{ticket_id}/comments",
         json={"content": "Comentario original"},
     ).json()
 
     comment_id = created["data"]["id"]
 
     response = client.patch(
-        f"{API_PREFIX}/ticket/{ticket_id}/comment/{comment_id}",
+        f"{API_PREFIX}/tickets/{ticket_id}/comments/{comment_id}",
         json={"content": "Comentário atualizado"},
     )
     body = response.json()
@@ -127,7 +127,7 @@ def test_update_comment_returns_updated_comment() -> None:
 def test_create_comment_returns_422_for_invalid_payload() -> None:
     ticket_id = 1
     response = client.post(
-        f"{API_PREFIX}/ticket/{ticket_id}/comment",
+        f"{API_PREFIX}/tickets/{ticket_id}/comments",
         json={"content": "Comentário", "invalid_field": ""},
     )
     body = response.json()
@@ -147,7 +147,7 @@ def test_create_comment_returns_422_for_invalid_payload() -> None:
 def test_list_comments_returns_not_found_for_unknown_ticket() -> None:
     invalid_ticket_id = 999
 
-    response = client.get(f"{API_PREFIX}/ticket/{invalid_ticket_id}/comment")
+    response = client.get(f"{API_PREFIX}/tickets/{invalid_ticket_id}/comments")
     body = response.json()
 
     assert response.status_code == 404
@@ -167,7 +167,7 @@ def test_update_comment_returns_not_found_for_unknown_comment() -> None:
     invalid_comment_id = 999
 
     response = client.patch(
-        f"{API_PREFIX}/ticket/{ticket_id}/comment/{invalid_comment_id}",
+        f"{API_PREFIX}/tickets/{ticket_id}/comments/{invalid_comment_id}",
         json={"content": "Comentário atualizado"},
     )
     body = response.json()

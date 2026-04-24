@@ -5,13 +5,17 @@ from app.main import API_PREFIX, app
 client = TestClient(app)
 
 
-def _create_category() -> int:
+def _create_category(
+    name: str = "Hardware",
+    description: str = "Categoria para testes",
+    is_active: bool = True,
+) -> int:
     response = client.post(
-        f"{API_PREFIX}/category",
+        f"{API_PREFIX}/categories",
         json={
-            "name": "Hardware",
-            "description": "Categoria para testes",
-            "is_active": True,
+            "name": name,
+            "description": description,
+            "is_active": is_active,
         },
     )
     body = response.json()
@@ -25,7 +29,7 @@ def _create_ticket(
     priority: str,
 ) -> int:
     response = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
             "title": title,
             "description": "Ticket criado para teste de filtro",
@@ -43,7 +47,7 @@ def _create_ticket(
 
 
 def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
-    response = client.get(f"{API_PREFIX}/ticket")
+    response = client.get(f"{API_PREFIX}/tickets")
 
     assert response.status_code == 200
     assert response.json() == {
@@ -75,7 +79,7 @@ def test_list_tickets_returns_paginated_tickets() -> None:
     )
 
     response = client.get(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         params={"page": 2, "page_size": 2},
     )
     body = response.json()
@@ -100,7 +104,7 @@ def test_create_ticket_returns_created_ticket() -> None:
         "priority": "high",
     }
 
-    response = client.post(f"{API_PREFIX}/ticket", json=payload)
+    response = client.post(f"{API_PREFIX}/tickets", json=payload)
     body = response.json()
 
     assert response.status_code == 201
@@ -116,7 +120,7 @@ def test_get_ticket_by_id_returns_ticket_details() -> None:
     category_id = _create_category()
 
     created = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
             "title": "Email bloqueado",
             "description": "Nao recebe mensagens externas",
@@ -127,7 +131,7 @@ def test_get_ticket_by_id_returns_ticket_details() -> None:
 
     ticket_id = created["data"]["id"]
 
-    response = client.get(f"{API_PREFIX}/ticket/{ticket_id}")
+    response = client.get(f"{API_PREFIX}/tickets/{ticket_id}")
     body = response.json()
 
     assert response.status_code == 200
@@ -140,7 +144,7 @@ def test_update_ticket_returns_updated_ticket() -> None:
     category_id = _create_category()
 
     created = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
             "title": "VPN instável",
             "description": "Conexão cai durante o expediente",
@@ -152,7 +156,7 @@ def test_update_ticket_returns_updated_ticket() -> None:
     ticket_id = created["data"]["id"]
 
     response = client.patch(
-        f"{API_PREFIX}/ticket/{ticket_id}",
+        f"{API_PREFIX}/tickets/{ticket_id}",
         json={
             "priority": "urgent",
             "status": "closed",
@@ -168,7 +172,7 @@ def test_update_ticket_returns_updated_ticket() -> None:
 
 def test_create_ticket_returns_422_for_invalid_payload() -> None:
     response = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
             "title": "Impressora sem toner",
             # "description" is missing
@@ -195,7 +199,7 @@ def test_get_ticket_by_id_returns_not_found_for_unknown_id() -> None:
 
     invalid_ticket_id = 999
 
-    response = client.get(f"{API_PREFIX}/ticket/{invalid_ticket_id}")
+    response = client.get(f"{API_PREFIX}/tickets/{invalid_ticket_id}")
     body = response.json()
 
     assert response.status_code == 404
@@ -214,7 +218,7 @@ def test_update_ticket_returns_not_found_for_unknown_id() -> None:
     invalid_ticket_id = 999
 
     response = client.patch(
-        f"{API_PREFIX}/ticket/{invalid_ticket_id}",
+        f"{API_PREFIX}/tickets/{invalid_ticket_id}",
         json={
             "priority": "urgent",
             "status": "closed",
@@ -248,11 +252,11 @@ def test_list_tickets_filters_by_status() -> None:
     )
 
     client.patch(
-        f"{API_PREFIX}/ticket/{closed_ticket_id}",
+        f"{API_PREFIX}/tickets/{closed_ticket_id}",
         json={"status": "closed"},
     )
 
-    response = client.get(f"{API_PREFIX}/ticket", params={"status": "open"})
+    response = client.get(f"{API_PREFIX}/tickets", params={"status": "open"})
     body = response.json()
 
     assert response.status_code == 200
@@ -274,7 +278,7 @@ def test_list_tickets_filters_by_priority() -> None:
         priority="high",
     )
 
-    response = client.get(f"{API_PREFIX}/ticket", params={"priority": "high"})
+    response = client.get(f"{API_PREFIX}/tickets", params={"priority": "high"})
     body = response.json()
 
     assert response.status_code == 200
@@ -285,15 +289,7 @@ def test_list_tickets_filters_by_priority() -> None:
 
 def test_list_tickets_filters_by_category() -> None:
     hardware_category_id = _create_category()
-    software_category = client.post(
-        f"{API_PREFIX}/category",
-        json={
-            "name": "Software",
-            "description": "Categoria para sistemas",
-            "is_active": True,
-        },
-    ).json()
-    software_category_id = software_category["data"]["id"]
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
 
     _create_ticket(
         title="Mouse quebrado",
@@ -307,7 +303,7 @@ def test_list_tickets_filters_by_category() -> None:
     )
 
     response = client.get(
-        f"{API_PREFIX}/ticket", params={"category_id": software_category_id}
+        f"{API_PREFIX}/tickets", params={"category_id": software_category_id}
     )
     body = response.json()
 
@@ -319,15 +315,7 @@ def test_list_tickets_filters_by_category() -> None:
 
 def test_list_tickets_filters_by_category_and_priority() -> None:
     hardware_category_id = _create_category()
-    software_category = client.post(
-        f"{API_PREFIX}/category",
-        json={
-            "name": "Software",
-            "description": "Categoria para sistemas",
-            "is_active": True,
-        },
-    ).json()
-    software_category_id = software_category["data"]["id"]
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
 
     _create_ticket(
         title="Mouse quebrado",
@@ -346,7 +334,7 @@ def test_list_tickets_filters_by_category_and_priority() -> None:
     )
 
     response = client.get(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         params={
             "category_id": software_category_id,
             "priority": "high",
@@ -363,15 +351,7 @@ def test_list_tickets_filters_by_category_and_priority() -> None:
 
 def test_list_tickets_ordered_by_id_descending() -> None:
     hardware_category_id = _create_category()
-    software_category = client.post(
-        f"{API_PREFIX}/category",
-        json={
-            "name": "Software",
-            "description": "Categoria para sistemas",
-            "is_active": True,
-        },
-    ).json()
-    software_category_id = software_category["data"]["id"]
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
 
     _create_ticket(
         title="Mouse quebrado",
@@ -390,7 +370,7 @@ def test_list_tickets_ordered_by_id_descending() -> None:
     )
 
     response = client.get(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         params={"sort_order": "desc"},
     )
     body = response.json()
@@ -404,15 +384,7 @@ def test_list_tickets_ordered_by_id_descending() -> None:
 
 def test_list_tickets_ordered_by_priority_descending() -> None:
     hardware_category_id = _create_category()
-    software_category = client.post(
-        f"{API_PREFIX}/category",
-        json={
-            "name": "Software",
-            "description": "Categoria para sistemas",
-            "is_active": True,
-        },
-    ).json()
-    software_category_id = software_category["data"]["id"]
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
 
     _create_ticket(
         title="Mouse quebrado",
@@ -436,7 +408,7 @@ def test_list_tickets_ordered_by_priority_descending() -> None:
     )
 
     response = client.get(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         params={"sort_field": "priority", "sort_order": "desc"},
     )
     body = response.json()

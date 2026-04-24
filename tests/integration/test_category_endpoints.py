@@ -6,7 +6,7 @@ client = TestClient(app)
 
 
 def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
-    response = client.get(f"{API_PREFIX}/category")
+    response = client.get(f"{API_PREFIX}/categories")
 
     assert response.status_code == 200
     assert response.json() == {
@@ -23,7 +23,7 @@ def test_create_category_returns_created_category() -> None:
         "is_active": True,
     }
 
-    response = client.post(f"{API_PREFIX}/category", json=payload)
+    response = client.post(f"{API_PREFIX}/categories", json=payload)
     body = response.json()
 
     assert response.status_code == 201
@@ -37,7 +37,7 @@ def test_create_category_returns_created_category() -> None:
 
 def test_get_category_by_id_returns_category_details() -> None:
     created = client.post(
-        f"{API_PREFIX}/category",
+        f"{API_PREFIX}/categories",
         json={
             "name": "Acesso",
             "description": "Permissões e credenciais",
@@ -47,7 +47,7 @@ def test_get_category_by_id_returns_category_details() -> None:
 
     category_id = created["data"]["id"]
 
-    response = client.get(f"{API_PREFIX}/category/{category_id}")
+    response = client.get(f"{API_PREFIX}/categories/{category_id}")
     body = response.json()
 
     assert response.status_code == 200
@@ -59,7 +59,7 @@ def test_get_category_by_id_returns_category_details() -> None:
 
 def test_update_category_returns_updated_category() -> None:
     created = client.post(
-        f"{API_PREFIX}/category",
+        f"{API_PREFIX}/categories",
         json={
             "name": "Software",
             "description": "Falhas em sistemas internos",
@@ -70,7 +70,7 @@ def test_update_category_returns_updated_category() -> None:
     category_id = created["data"]["id"]
 
     response = client.patch(
-        f"{API_PREFIX}/category/{category_id}",
+        f"{API_PREFIX}/categories/{category_id}",
         json={
             "name": "Software Corporativo",
             "is_active": False,
@@ -88,7 +88,7 @@ def test_update_category_returns_updated_category() -> None:
 
 def test_create_category_returns_422_for_invalid_payload() -> None:
     response = client.post(
-        f"{API_PREFIX}/category",
+        f"{API_PREFIX}/categories",
         json={
             # name is missing
             # description is missing
@@ -112,7 +112,7 @@ def test_create_category_returns_422_for_invalid_payload() -> None:
 def test_get_category_by_id_returns_not_found_for_unknown_id() -> None:
     invalid_category_id = 999
 
-    response = client.get(f"{API_PREFIX}/category/{invalid_category_id}")
+    response = client.get(f"{API_PREFIX}/categories/{invalid_category_id}")
     body = response.json()
 
     assert response.status_code == 404
@@ -131,7 +131,7 @@ def test_update_category_returns_not_found_for_unknown_id() -> None:
     invalid_category_id = 999
 
     response = client.patch(
-        f"{API_PREFIX}/category/{invalid_category_id}",
+        f"{API_PREFIX}/categories/{invalid_category_id}",
         json={
             "name": "Acesso",
             "description": "Permissões e credenciais",

@@ -24,7 +24,7 @@ from app.application.use_cases.category.update_category import (
 )
 from app.infrastructure.container import Container
 
-router = APIRouter(prefix="/category", tags=["categories"])
+router = APIRouter(prefix="/categories", tags=["categories"])
 
 
 @router.get(

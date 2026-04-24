@@ -22,7 +22,7 @@ from app.application.use_cases.comment.update_comment import (
 )
 from app.infrastructure.container import Container
 
-router = APIRouter(prefix="/ticket/{ticket_id}/comment", tags=["comment"])
+router = APIRouter(prefix="/tickets/{ticket_id}/comments", tags=["comment"])
 
 
 @router.get(

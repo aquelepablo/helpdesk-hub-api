@@ -31,7 +31,7 @@ from app.application.use_cases.ticket.update_ticket import (
 )
 from app.infrastructure.container import Container
 
-router = APIRouter(prefix="/ticket", tags=["tickets"])
+router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 
 @router.get(
