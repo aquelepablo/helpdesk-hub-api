@@ -77,7 +77,9 @@ class Container(containers.DeclarativeContainer):
     )
 
     update_comment_use_case = providers.Factory(
-        UpdateCommentUseCase, comment_repository=comment_repository
+        UpdateCommentUseCase,
+        comment_repository=comment_repository,
+        ticket_repository=ticket_repository,
     )
 
     list_comments_use_case = providers.Factory(

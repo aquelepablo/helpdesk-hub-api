@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
-from app.application.interfaces.repositories.comment_repository import (
-    CommentRepository,
-)
+from app.application.interfaces.repositories.comment_repository import CommentRepository
+from app.application.interfaces.repositories.ticket_repository import TicketRepository
 from app.domain.entities.comment import Comment
 
 
@@ -14,15 +13,19 @@ class UpdateCommentInput:
 
 
 class UpdateCommentUseCase:
-    def __init__(self, comment_repository: CommentRepository) -> None:
-        self._comment_repo = comment_repository
+    def __init__(
+        self, comment_repository: CommentRepository, ticket_repository: TicketRepository
+    ) -> None:
+        self._comment_repository = comment_repository
+        self._ticket_repository = ticket_repository
 
     def execute(self, input_data: UpdateCommentInput) -> Comment:
 
-        existing_comment = self._comment_repo.get_by_id_and_ticket_id(
+        self._ticket_repository.get_by_id(input_data.ticket_id)
+        existing_comment = self._comment_repository.get_by_id_and_ticket_id(
             input_data.comment_id, input_data.ticket_id
         )
 
         existing_comment.content = input_data.content
 
-        return self._comment_repo.save(existing_comment)
+        return self._comment_repository.save(existing_comment)
