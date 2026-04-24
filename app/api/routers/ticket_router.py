@@ -6,22 +6,29 @@ from app.api.docs.error_responses import (
     GET_BY_ID_RESPONSES,
     UPDATE_RESPONSES,
 )
-from app.api.mappers.ticket_mapper import (
-    to_create_ticket_input,
-    to_list_ticket_input,
-    to_update_ticket_input,
-)
+from app.api.mappers.pagination_mapper import to_pagination_params
+from app.api.mappers.ticket_mapper import to_ticket_page_response
 from app.api.schemas.common_schema import ApiResponse
+from app.api.schemas.pagination_schema import PagedResponse, PageQuery
 from app.api.schemas.ticket_schema import (
     TicketCreateRequest,
     TicketFilterRequest,
     TicketResponse,
     TicketUpdateRequest,
 )
-from app.application.use_cases.ticket.create_ticket import CreateTicketUseCase
+from app.application.use_cases.ticket.create_ticket import (
+    CreateTicketInput,
+    CreateTicketUseCase,
+)
 from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
-from app.application.use_cases.ticket.list_tickets import ListTicketsUseCase
-from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
+from app.application.use_cases.ticket.list_tickets import (
+    ListTicketsInput,
+    ListTicketsUseCase,
+)
+from app.application.use_cases.ticket.update_ticket import (
+    UpdateTicketInput,
+    UpdateTicketUseCase,
+)
 from app.infrastructure.container import Container
 
 router = APIRouter(prefix="/ticket", tags=["tickets"])
@@ -29,20 +36,22 @@ router = APIRouter(prefix="/ticket", tags=["tickets"])
 
 @router.get(
     "",
-    response_model=ApiResponse[list[TicketResponse]],
+    response_model=PagedResponse[TicketResponse],
     summary="Listar todos os tickets",
 )
 @inject
 def list_tickets(
     filters: TicketFilterRequest = Depends(),
+    page_query: PageQuery = Depends(),
     use_case: ListTicketsUseCase = Depends(Provide[Container.list_tickets_use_case]),
-) -> ApiResponse[list[TicketResponse]]:
-    input_data = to_list_ticket_input(filters)
-    tickets = use_case.execute(input_data)
-    responses = [TicketResponse.model_validate(ticket) for ticket in tickets]
-    return ApiResponse(
-        message="Listagem de tickets realizada com sucesso", data=responses
+) -> PagedResponse[TicketResponse]:
+    input_data = ListTicketsInput(
+        pagination_params=to_pagination_params(page_query), **filters.model_dump()
     )
+
+    tickets_page = use_case.execute(input_data)
+
+    return to_ticket_page_response(tickets_page)
 
 
 @router.post(
@@ -56,7 +65,7 @@ def create_ticket(
     request: TicketCreateRequest,
     use_case: CreateTicketUseCase = Depends(Provide[Container.create_ticket_use_case]),
 ) -> ApiResponse[TicketResponse]:
-    input_data = to_create_ticket_input(request)
+    input_data = CreateTicketInput(**request.model_dump())
     new_ticket = use_case.execute(input_data)
     response = TicketResponse.model_validate(new_ticket)
     return ApiResponse(message="Ticket criado com sucesso", data=response)
@@ -92,7 +101,7 @@ def update_ticket(
     request: TicketUpdateRequest,
     use_case: UpdateTicketUseCase = Depends(Provide[Container.update_ticket_use_case]),
 ) -> ApiResponse[TicketResponse]:
-    input_data = to_update_ticket_input(request)
-    updated_ticket = use_case.execute(ticket_id, input_data)
+    input_data = UpdateTicketInput(ticket_id, **request.model_dump(exclude_unset=True))
+    updated_ticket = use_case.execute(input_data)
     response = TicketResponse.model_validate(updated_ticket)
     return ApiResponse(message="Ticket atualizado com sucesso", data=response)

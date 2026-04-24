@@ -2,7 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from app.application.dtos.sorting import SortDirection
 from app.domain.enum.ticket_priority import TicketPriority
+from app.domain.enum.ticket_sort_field import TicketSortField
 from app.domain.enum.ticket_status import TicketStatus
 
 
@@ -60,9 +62,23 @@ class TicketUpdateRequest(BaseModel):
 class TicketFilterRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
-    status: TicketStatus | None = None
-    priority: TicketPriority | None = None
-    category_id: int | None = Field(default=None, gt=0)
+    status: TicketStatus | None = Field(
+        default=None, description="Filter tickets by their status."
+    )
+    priority: TicketPriority | None = Field(
+        default=None, description="Filter tickets by their priority."
+    )
+    category_id: int | None = Field(
+        default=None,
+        gt=0,
+        description="The ID of the category to which the ticket belongs.",
+    )
+    sort_field: TicketSortField = Field(
+        default=TicketSortField.ID, description="Field by which to sort the tickets."
+    )
+    sort_order: SortDirection = Field(
+        default=SortDirection.ASC, description="Direction in which to sort the tickets."
+    )
 
 
 class TicketResponse(BaseModel):

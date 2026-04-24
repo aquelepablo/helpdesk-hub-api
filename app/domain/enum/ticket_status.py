@@ -6,3 +6,11 @@ class TicketStatus(Enum):
 
     OPEN = "open"
     CLOSED = "closed"
+
+    @property
+    def sort_order(self) -> int:
+        order = {
+            TicketStatus.OPEN: 1,
+            TicketStatus.CLOSED: 2,
+        }
+        return order[self]

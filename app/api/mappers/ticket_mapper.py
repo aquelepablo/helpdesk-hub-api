@@ -1,33 +1,20 @@
+from app.api.schemas.pagination_schema import PagedResponse
 from app.api.schemas.ticket_schema import (
-    TicketCreateRequest,
-    TicketFilterRequest,
-    TicketUpdateRequest,
+    TicketResponse,
 )
-from app.application.use_cases.ticket.create_ticket import CreateTicketInput
-from app.application.use_cases.ticket.list_tickets import ListTicketsInput
-from app.application.use_cases.ticket.update_ticket import UpdateTicketInput
+from app.application.dtos.pagination import PagedResult
+from app.domain.entities.ticket import Ticket
 
 
-def to_create_ticket_input(request: TicketCreateRequest) -> CreateTicketInput:
-    return CreateTicketInput(
-        title=request.title,
-        description=request.description,
-        category_id=request.category_id,
-        priority=request.priority,
-    )
+def to_ticket_response(ticket: Ticket) -> TicketResponse:
+    return TicketResponse.model_validate(ticket)
 
 
-def to_update_ticket_input(request: TicketUpdateRequest) -> UpdateTicketInput:
-    return UpdateTicketInput(
-        category_id=request.category_id,
-        priority=request.priority,
-        status=request.status,
-    )
-
-
-def to_list_ticket_input(request: TicketFilterRequest) -> ListTicketsInput:
-    return ListTicketsInput(
-        status=request.status,
-        priority=request.priority,
-        category_id=request.category_id,
+def to_ticket_page_response(page: PagedResult[Ticket]) -> PagedResponse[TicketResponse]:
+    return PagedResponse(
+        items=[to_ticket_response(ticket) for ticket in page.items],
+        total_items=page.total_items,
+        page=page.page,
+        page_size=page.page_size,
+        total_pages=page.total_pages,
     )

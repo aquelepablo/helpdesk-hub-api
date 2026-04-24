@@ -1,6 +1,6 @@
 from app.application.bootstrap.default_categories import DEFAULT_CATEGORIES
 from app.domain.entities.category import Category
-from app.infrastructure.db.repositories.category_repository import (
+from app.infrastructure.db.repositories.memory.category_repository import (
     InMemoryCategoryRepository,
 )
 

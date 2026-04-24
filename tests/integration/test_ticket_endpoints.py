@@ -48,10 +48,47 @@ def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
 
     assert response.status_code == 200
     assert response.json() == {
-        "success": True,
-        "message": "Listagem de tickets realizada com sucesso",
-        "data": [],
+        "items": [],
+        "total_items": 0,
+        "page": 1,
+        "page_size": 10,
+        "total_pages": 0,
     }
+
+
+def test_list_tickets_returns_paginated_tickets() -> None:
+    category_id = _create_category()
+
+    first_ticket_id = _create_ticket(
+        title="Ticket 1",
+        category_id=category_id,
+        priority="low",
+    )
+    second_ticket_id = _create_ticket(
+        title="Ticket 2",
+        category_id=category_id,
+        priority="medium",
+    )
+    third_ticket_id = _create_ticket(
+        title="Ticket 3",
+        category_id=category_id,
+        priority="high",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/ticket",
+        params={"page": 2, "page_size": 2},
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["total_items"] == 3
+    assert body["page"] == 2
+    assert body["page_size"] == 2
+    assert body["total_pages"] == 2
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == third_ticket_id
+    assert body["items"][0]["id"] not in (first_ticket_id, second_ticket_id)
 
 
 def test_create_ticket_returns_created_ticket() -> None:
@@ -167,10 +204,9 @@ def test_list_tickets_filters_by_status() -> None:
     body = response.json()
 
     assert response.status_code == 200
-    assert body["success"] is True
-    assert len(body["data"]) == 1
-    assert body["data"][0]["id"] == open_ticket_id
-    assert body["data"][0]["status"] == "open"
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == open_ticket_id
+    assert body["items"][0]["status"] == "open"
 
 
 def test_list_tickets_filters_by_priority() -> None:
@@ -190,10 +226,9 @@ def test_list_tickets_filters_by_priority() -> None:
     body = response.json()
 
     assert response.status_code == 200
-    assert body["success"] is True
-    assert len(body["data"]) == 1
-    assert body["data"][0]["id"] == high_priority_ticket_id
-    assert body["data"][0]["priority"] == "high"
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == high_priority_ticket_id
+    assert body["items"][0]["priority"] == "high"
 
 
 def test_list_tickets_filters_by_category() -> None:
@@ -225,10 +260,9 @@ def test_list_tickets_filters_by_category() -> None:
     body = response.json()
 
     assert response.status_code == 200
-    assert body["success"] is True
-    assert len(body["data"]) == 1
-    assert body["data"][0]["id"] == expected_ticket_id
-    assert body["data"][0]["priority"] == "high"
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == expected_ticket_id
+    assert body["items"][0]["priority"] == "high"
 
 
 def test_list_tickets_filters_by_category_and_priority() -> None:
@@ -269,8 +303,97 @@ def test_list_tickets_filters_by_category_and_priority() -> None:
     body = response.json()
 
     assert response.status_code == 200
-    assert body["success"] is True
-    assert len(body["data"]) == 1
-    assert body["data"][0]["id"] == expected_ticket_id
-    assert body["data"][0]["category_id"] == software_category_id
-    assert body["data"][0]["priority"] == "high"
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == expected_ticket_id
+    assert body["items"][0]["category_id"] == software_category_id
+    assert body["items"][0]["priority"] == "high"
+
+
+def test_list_tickets_ordered_by_id_descending() -> None:
+    hardware_category_id = _create_category()
+    software_category = client.post(
+        f"{API_PREFIX}/category",
+        json={
+            "name": "Software",
+            "description": "Categoria para sistemas",
+            "is_active": True,
+        },
+    ).json()
+    software_category_id = software_category["data"]["id"]
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="high",
+    )
+    third_ticket_id = _create_ticket(
+        title="Editor travando",
+        category_id=software_category_id,
+        priority="low",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/ticket",
+        params={"sort_order": "desc"},
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 3
+    assert body["items"][0]["id"] == third_ticket_id
+    assert body["items"][0]["category_id"] == software_category_id
+    assert body["items"][0]["priority"] == "low"
+
+
+def test_list_tickets_ordered_by_priority_descending() -> None:
+    hardware_category_id = _create_category()
+    software_category = client.post(
+        f"{API_PREFIX}/category",
+        json={
+            "name": "Software",
+            "description": "Categoria para sistemas",
+            "is_active": True,
+        },
+    ).json()
+    software_category_id = software_category["data"]["id"]
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="medium",
+    )
+    last_expected_ticket_id = _create_ticket(
+        title="Editor travando",
+        category_id=software_category_id,
+        priority="low",
+    )
+    first_expected_ticket_id = _create_ticket(
+        title="Sistema offline",
+        category_id=software_category_id,
+        priority="urgent",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/ticket",
+        params={"sort_field": "priority", "sort_order": "desc"},
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 4
+    assert body["items"][0]["id"] == first_expected_ticket_id
+    assert body["items"][0]["category_id"] == software_category_id
+    assert body["items"][0]["priority"] == "urgent"
+    assert body["items"][3]["id"] == last_expected_ticket_id
+    assert body["items"][3]["category_id"] == software_category_id
+    assert body["items"][3]["priority"] == "low"

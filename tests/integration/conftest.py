@@ -1,6 +1,6 @@
 import pytest
 
-from app.infrastructure.db.repositories.memory_database import (
+from app.infrastructure.db.repositories.memory.memory_database import (
     category_db,
     comment_db,
     ticket_db,

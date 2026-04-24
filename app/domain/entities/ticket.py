@@ -16,9 +16,10 @@ class Ticket:
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
+    @property
+    def status_sort_key(self) -> int:
+        return self.status.sort_order
 
-@dataclass(slots=True)
-class TicketFilter:
-    status: TicketStatus | None = None
-    priority: TicketPriority | None = None
-    category_id: int | None = None
+    @property
+    def priority_sort_key(self) -> int:
+        return self.priority.sort_order

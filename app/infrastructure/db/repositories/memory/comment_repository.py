@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from app.domain.entities.comment import Comment
 from app.domain.exceptions.comment_exceptions import CommentNotFoundError
-from app.infrastructure.db.repositories.memory_database import comment_db
+from app.infrastructure.db.repositories.memory.memory_database import comment_db
 
 
 class InMemoryCommentRepository:

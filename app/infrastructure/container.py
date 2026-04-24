@@ -11,13 +11,13 @@ from app.application.use_cases.ticket.create_ticket import CreateTicketUseCase
 from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
 from app.application.use_cases.ticket.list_tickets import ListTicketsUseCase
 from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
-from app.infrastructure.db.repositories.category_repository import (
+from app.infrastructure.db.repositories.memory.category_repository import (
     InMemoryCategoryRepository,
 )
-from app.infrastructure.db.repositories.comment_repository import (
+from app.infrastructure.db.repositories.memory.comment_repository import (
     InMemoryCommentRepository,
 )
-from app.infrastructure.db.repositories.ticket_repository import (
+from app.infrastructure.db.repositories.memory.ticket_repository import (
     InMemoryTicketRepository,
 )
 

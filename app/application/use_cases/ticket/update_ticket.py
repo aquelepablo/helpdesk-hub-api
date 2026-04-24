@@ -14,9 +14,10 @@ from app.domain.exceptions.ticket_exceptions import ClosedTicketUpdateError
 
 @dataclass(slots=True)
 class UpdateTicketInput:
-    category_id: int | None
-    priority: TicketPriority | None
-    status: TicketStatus | None
+    ticket_id: int
+    category_id: int | None = None
+    priority: TicketPriority | None = None
+    status: TicketStatus | None = None
 
 
 class UpdateTicketUseCase:
@@ -28,9 +29,9 @@ class UpdateTicketUseCase:
         self._ticket_repo = ticket_repository
         self._category_repo = category_repository
 
-    def execute(self, ticket_id: int, input_data: UpdateTicketInput) -> Ticket:
+    def execute(self, input_data: UpdateTicketInput) -> Ticket:
 
-        existing_ticket = self._ticket_repo.get_by_id(ticket_id)
+        existing_ticket = self._ticket_repo.get_by_id(input_data.ticket_id)
 
         if not existing_ticket.status == TicketStatus.OPEN:
             raise ClosedTicketUpdateError()
