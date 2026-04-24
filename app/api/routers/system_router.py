@@ -2,7 +2,6 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter
 
-from app.infrastructure.settings.project_metadata import project_metadata
 from app.infrastructure.settings.settings import settings
 
 router = APIRouter(tags=["System"])
@@ -14,8 +13,8 @@ router = APIRouter(tags=["System"])
 )
 def get_root() -> dict[str, str]:
     return {
-        "service": project_metadata.title,
-        "description": project_metadata.description,
+        "service": settings.app_title,
+        "description": settings.app_description,
     }
 
 
@@ -44,9 +43,9 @@ def get_health() -> dict[str, str | list[str]]:
 )
 def get_info() -> dict[str, str]:
     api_info = {
-        "service": project_metadata.title,
-        "project_name": project_metadata.name,
-        "version": project_metadata.version,
+        "service": settings.app_title,
+        "project_name": settings.app_name,
+        "version": settings.app_version,
         "environment": settings.app_env.value,
     }
     return api_info

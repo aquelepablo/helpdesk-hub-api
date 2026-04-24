@@ -12,7 +12,10 @@ from app.api.routers import (
 )
 from app.infrastructure.bootstrap.seed_categories import seed_categories
 from app.infrastructure.container import Container
-from app.infrastructure.settings.project_metadata import project_metadata
+from app.infrastructure.logging.logging_config import configure_logging
+
+# from app.infrastructure.settings.project_metadata import project_metadata
+from app.infrastructure.settings.settings import settings
 
 API_PREFIX = "/api/v1"
 
@@ -31,13 +34,15 @@ def create_app() -> FastAPI:
     Returns:
         FastAPI: An instance of the FastAPI application ready to be run.
     """
+    configure_logging()
+
     container = Container()
     container.wire(modules=[category_router, ticket_router, comment_router])
 
     app = FastAPI(
-        title=project_metadata.title,
-        description=project_metadata.description,
-        version=project_metadata.version,
+        title=settings.app_title,
+        description=settings.app_description,
+        version=settings.app_version,
         lifespan=lifespan,
     )
 
