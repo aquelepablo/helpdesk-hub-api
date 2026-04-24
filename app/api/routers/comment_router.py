@@ -5,19 +5,21 @@ from app.api.docs.error_responses import (
     CREATE_RESPONSES,
     UPDATE_RESPONSES,
 )
-from app.api.mappers.comment_mapper import (
-    to_create_comment_input,
-    to_update_comment_input,
-)
 from app.api.schemas.comment_schema import (
     CommentCreateRequest,
     CommentResponse,
     CommentUpdateRequest,
 )
 from app.api.schemas.common_schema import ApiResponse
-from app.application.use_cases.comment.create_comment import CreateCommentUseCase
+from app.application.use_cases.comment.create_comment import (
+    CreateCommentInput,
+    CreateCommentUseCase,
+)
 from app.application.use_cases.comment.list_comments import ListCommentsUseCase
-from app.application.use_cases.comment.update_comment import UpdateCommentUseCase
+from app.application.use_cases.comment.update_comment import (
+    UpdateCommentInput,
+    UpdateCommentUseCase,
+)
 from app.infrastructure.container import Container
 
 router = APIRouter(prefix="/ticket/{ticket_id}/comment", tags=["comment"])
@@ -54,7 +56,7 @@ def create_comment(
         Provide[Container.create_comment_use_case]
     ),
 ) -> ApiResponse[CommentResponse]:
-    input_data = to_create_comment_input(ticket_id, request)
+    input_data = CreateCommentInput(ticket_id=ticket_id, content=request.content)
     new_comment = use_case.execute(input_data)
     response = CommentResponse.model_validate(new_comment)
     return ApiResponse(message="Comentário criado com sucesso", data=response)
@@ -75,7 +77,9 @@ def update_comment(
         Provide[Container.update_comment_use_case]
     ),
 ) -> ApiResponse[CommentResponse]:
-    input_data = to_update_comment_input(comment_id, ticket_id, request)
+    input_data = UpdateCommentInput(
+        comment_id=comment_id, ticket_id=ticket_id, content=request.content
+    )
     updated_comment = use_case.execute(input_data)
     response = CommentResponse.model_validate(updated_comment)
     return ApiResponse(message="Comentário atualizado com sucesso", data=response)
