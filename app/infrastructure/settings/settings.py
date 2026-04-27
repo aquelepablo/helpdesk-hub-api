@@ -13,17 +13,23 @@ class AppEnv(StrEnum):
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
-    app_title: str
-    app_name: str
-    app_description: str
-    app_version: str
-    app_env: AppEnv = AppEnv.DEVELOPMENT
-    app_port: int = 8000
-    app_log_level: str = "INFO"
+    project_title: str
+    project_name: str
+    project_description: str
+    project_version: str
 
-    @field_validator("app_log_level", mode="before")
+    environment: AppEnv = AppEnv.DEVELOPMENT
+    port: int = 8000
+    log_level: str = "INFO"
+
+    database_url: str | None = None
+
+    @field_validator("log_level", mode="before")
     @classmethod
     def validate_log_level(cls, value: str) -> str:
         valid_levels = getLogLevelNames()
@@ -36,7 +42,7 @@ class Settings(BaseSettings):
 
     @property
     def is_development(self) -> bool:
-        return self.app_env == AppEnv.DEVELOPMENT
+        return self.environment == AppEnv.DEVELOPMENT
 
 
 settings = Settings()  # pyright: ignore[reportCallIssue]

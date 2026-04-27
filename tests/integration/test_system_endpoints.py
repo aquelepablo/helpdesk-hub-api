@@ -11,8 +11,8 @@ def test_get_root_returns_service_metadata() -> None:
 
     assert response.status_code == 200
     assert response.json() == {
-        "service": settings.app_title,
-        "description": settings.app_description,
+        "service": settings.project_title,
+        "description": settings.project_description,
     }
 
 
@@ -38,10 +38,10 @@ def test_get_info_returns_application_metadata() -> None:
 
     assert response.status_code == 200
     assert response.json() == {
-        "service": settings.app_title,
-        "project_name": settings.app_name,
-        "version": settings.app_version,
-        "environment": settings.app_env,
+        "service": settings.project_title,
+        "project_name": settings.project_name,
+        "version": settings.project_version,
+        "environment": settings.environment,
     }
 
 

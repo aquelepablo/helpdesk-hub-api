@@ -13,8 +13,8 @@ router = APIRouter(tags=["System"])
 )
 def get_root() -> dict[str, str]:
     return {
-        "service": settings.app_title,
-        "description": settings.app_description,
+        "service": settings.project_title,
+        "description": settings.project_description,
     }
 
 
@@ -43,10 +43,10 @@ def get_health() -> dict[str, str | list[str]]:
 )
 def get_info() -> dict[str, str]:
     api_info = {
-        "service": settings.app_title,
-        "project_name": settings.app_name,
-        "version": settings.app_version,
-        "environment": settings.app_env.value,
+        "service": settings.project_title,
+        "project_name": settings.project_name,
+        "version": settings.project_version,
+        "environment": settings.environment.value,
     }
     return api_info
 

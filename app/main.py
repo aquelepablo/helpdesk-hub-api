@@ -40,9 +40,9 @@ def create_app() -> FastAPI:
     container.wire(modules=[category_router, ticket_router, comment_router])
 
     app = FastAPI(
-        title=settings.app_title,
-        description=settings.app_description,
-        version=settings.app_version,
+        title=settings.project_title,
+        description=settings.project_description,
+        version=settings.project_version,
         lifespan=lifespan,
     )
 
