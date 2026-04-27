@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 @dataclass(slots=True)
 class Category:
-    id: int = 0
+    id: int | None = None
     name: str = ""
     description: str = ""
     is_active: bool = True

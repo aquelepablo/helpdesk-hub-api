@@ -7,7 +7,7 @@ from app.domain.enum.ticket_status import TicketStatus
 
 @dataclass(slots=True)
 class Ticket:
-    id: int = 0
+    id: int | None = None
     title: str = ""
     description: str = ""
     category_id: int = 0
@@ -15,3 +15,11 @@ class Ticket:
     status: TicketStatus = TicketStatus.OPEN
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    @property
+    def status_sort_key(self) -> int:
+        return self.status.sort_order
+
+    @property
+    def priority_sort_key(self) -> int:
+        return self.priority.sort_order

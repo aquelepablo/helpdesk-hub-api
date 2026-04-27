@@ -1,7 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.infra.settings.project_metadata import project_metadata
-from app.infra.settings.settings import settings
+from app.infrastructure.settings.settings import settings
 from app.main import API_PREFIX, app
 
 client = TestClient(app)
@@ -12,8 +11,8 @@ def test_get_root_returns_service_metadata() -> None:
 
     assert response.status_code == 200
     assert response.json() == {
-        "service": project_metadata.title,
-        "description": project_metadata.description,
+        "service": settings.app_title,
+        "description": settings.app_description,
     }
 
 
@@ -39,10 +38,10 @@ def test_get_info_returns_application_metadata() -> None:
 
     assert response.status_code == 200
     assert response.json() == {
-        "service": project_metadata.title,
-        "project_name": project_metadata.name,
-        "version": project_metadata.version,
-        "environment": settings.app_env.value,
+        "service": settings.app_title,
+        "project_name": settings.app_name,
+        "version": settings.app_version,
+        "environment": settings.app_env,
     }
 
 

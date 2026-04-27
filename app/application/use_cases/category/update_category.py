@@ -1,20 +1,22 @@
 from dataclasses import dataclass
 
+from app.application.interfaces.repositories.category_repository import (
+    CategoryRepository,
+)
 from app.domain.entities.category import Category
-from app.domain.repositories.category_repository import CategoryRepository
 
 
 @dataclass(slots=True)
 class UpdateCategoryInput:
     category_id: int
-    name: str | None
-    description: str | None
-    is_active: bool | None
+    name: str | None = None
+    description: str | None = None
+    is_active: bool | None = None
 
 
 class UpdateCategoryUseCase:
-    def __init__(self, repository: CategoryRepository) -> None:
-        self._category_repository = repository
+    def __init__(self, category_repository: CategoryRepository) -> None:
+        self._category_repository = category_repository
 
     def execute(self, input_data: UpdateCategoryInput) -> Category:
 
@@ -29,4 +31,4 @@ class UpdateCategoryUseCase:
         if input_data.is_active is not None:
             existing_category.is_active = input_data.is_active
 
-        return self._category_repository.update(existing_category)
+        return self._category_repository.save(existing_category)

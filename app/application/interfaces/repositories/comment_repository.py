@@ -1,0 +1,11 @@
+from typing import Protocol
+
+from app.domain.entities.comment import Comment
+
+
+class CommentRepository(Protocol):
+    def save(self, comment: Comment) -> Comment: ...
+
+    def list_by_ticket_id(self, ticket_id: int) -> list[Comment]: ...
+
+    def get_by_id_and_ticket_id(self, comment_id: int, ticket_id: int) -> Comment: ...

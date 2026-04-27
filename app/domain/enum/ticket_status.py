@@ -1,8 +1,16 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TicketStatus(Enum):
+class TicketStatus(StrEnum):
     """Represents the status of a ticket"""
 
     OPEN = "open"
     CLOSED = "closed"
+
+    @property
+    def sort_order(self) -> int:
+        order = {
+            TicketStatus.OPEN: 1,
+            TicketStatus.CLOSED: 2,
+        }
+        return order[self]

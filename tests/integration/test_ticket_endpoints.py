@@ -1,42 +1,112 @@
-import pytest
 from fastapi.testclient import TestClient
 
-from app.infra.db.repositories.memory_database import ticket_db
 from app.main import API_PREFIX, app
 
 client = TestClient(app)
 
 
-def _reset_ticket_memory() -> None:
-    ticket_db.id_counter = 0
-    ticket_db.tickets.clear()
+def _create_category(
+    name: str = "Hardware",
+    description: str = "Categoria para testes",
+    is_active: bool = True,
+) -> int:
+    response = client.post(
+        f"{API_PREFIX}/categories",
+        json={
+            "name": name,
+            "description": description,
+            "is_active": is_active,
+        },
+    )
+    body = response.json()
+    return int(body["data"]["id"])
+
+
+def _create_ticket(
+    *,
+    title: str,
+    category_id: int,
+    priority: str,
+) -> int:
+    response = client.post(
+        f"{API_PREFIX}/tickets",
+        json={
+            "title": title,
+            "description": "Ticket criado para teste de filtro",
+            "category_id": category_id,
+            "priority": priority,
+        },
+    )
+
+    assert response.status_code == 201, {
+        "status_code": response.status_code,
+        "body": response.json(),
+    }
+
+    return int(response.json()["data"]["id"])
 
 
 def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
-    _reset_ticket_memory()
-
-    response = client.get(f"{API_PREFIX}/ticket")
+    response = client.get(f"{API_PREFIX}/tickets")
 
     assert response.status_code == 200
     assert response.json() == {
-        "success": True,
-        "message": "Listagem de tickets realizada com sucesso",
-        "data": [],
+        "message": "Tickets listados com sucesso",
+        "items": [],
+        "total_items": 0,
+        "page": 1,
+        "page_size": 10,
+        "total_pages": 0,
     }
+
+
+def test_list_tickets_returns_paginated_tickets() -> None:
+    category_id = _create_category()
+
+    first_ticket_id = _create_ticket(
+        title="Ticket 1",
+        category_id=category_id,
+        priority="low",
+    )
+    second_ticket_id = _create_ticket(
+        title="Ticket 2",
+        category_id=category_id,
+        priority="medium",
+    )
+    third_ticket_id = _create_ticket(
+        title="Ticket 3",
+        category_id=category_id,
+        priority="high",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"page": 2, "page_size": 2},
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["message"] == "Tickets listados com sucesso"
+    assert body["total_items"] == 3
+    assert body["page"] == 2
+    assert body["page_size"] == 2
+    assert body["total_pages"] == 2
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == third_ticket_id
+    assert body["items"][0]["id"] not in (first_ticket_id, second_ticket_id)
 
 
 def test_create_ticket_returns_created_ticket() -> None:
-    _reset_ticket_memory()
+    category_id = _create_category()
 
-    payload = {
+    payload: dict[str, str | int] = {
         "title": "Notebook sem acesso",
-        "description": "Usuario nao consegue entrar no equipamento",
-        "category_id": 1,
+        "description": "Usuário nao consegue entrar no equipamento",
+        "category_id": category_id,
         "priority": "high",
-        "status": "open",
     }
 
-    response = client.post(f"{API_PREFIX}/ticket", json=payload)
+    response = client.post(f"{API_PREFIX}/tickets", json=payload)
     body = response.json()
 
     assert response.status_code == 201
@@ -44,28 +114,26 @@ def test_create_ticket_returns_created_ticket() -> None:
     assert body["message"] == "Ticket criado com sucesso"
     assert body["data"]["id"] == 1
     assert body["data"]["title"] == "Notebook sem acesso"
-    assert body["data"]["category_id"] == 1
+    assert body["data"]["category_id"] == category_id
     assert body["data"]["priority"] == "high"
-    assert body["data"]["status"] == "open"
 
 
 def test_get_ticket_by_id_returns_ticket_details() -> None:
-    _reset_ticket_memory()
+    category_id = _create_category()
 
     created = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
             "title": "Email bloqueado",
             "description": "Nao recebe mensagens externas",
-            "category_id": 2,
+            "category_id": category_id,
             "priority": "medium",
-            "status": "open",
         },
     ).json()
 
     ticket_id = created["data"]["id"]
 
-    response = client.get(f"{API_PREFIX}/ticket/{ticket_id}")
+    response = client.get(f"{API_PREFIX}/tickets/{ticket_id}")
     body = response.json()
 
     assert response.status_code == 200
@@ -75,23 +143,23 @@ def test_get_ticket_by_id_returns_ticket_details() -> None:
 
 
 def test_update_ticket_returns_updated_ticket() -> None:
-    _reset_ticket_memory()
+    category_id = _create_category()
 
     created = client.post(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets",
         json={
-            "title": "VPN instavel",
-            "description": "Conexao cai durante o expediente",
-            "category_id": 3,
+            "title": "VPN instável",
+            "description": "Conexão cai durante o expediente",
+            "category_id": category_id,
             "priority": "low",
-            "status": "open",
         },
     ).json()
 
+    ticket_id = created["data"]["id"]
+
     response = client.patch(
-        f"{API_PREFIX}/ticket",
+        f"{API_PREFIX}/tickets/{ticket_id}",
         json={
-            "id": created["data"]["id"],
             "priority": "urgent",
             "status": "closed",
         },
@@ -104,16 +172,305 @@ def test_update_ticket_returns_updated_ticket() -> None:
     assert body["data"]["status"] == "closed"
 
 
-@pytest.mark.skip(reason="Definir contrato padronizado para erros de validacao.")
 def test_create_ticket_returns_422_for_invalid_payload() -> None:
-    pass
+    response = client.post(
+        f"{API_PREFIX}/tickets",
+        json={
+            "title": "Impressora sem toner",
+            # "description" is missing
+            "category_id": 999,  # Assuming this category does not exist
+            "priority": "invalid_priority",  # Invalid priority value
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_fields = {error["field"] for error in body["details"]["errors"]}
+
+    assert "description" in error_fields
+    assert "priority" in error_fields
 
 
-@pytest.mark.skip(reason="Definir comportamento para ticket inexistente.")
 def test_get_ticket_by_id_returns_not_found_for_unknown_id() -> None:
-    pass
+
+    invalid_ticket_id = 999
+
+    response = client.get(f"{API_PREFIX}/tickets/{invalid_ticket_id}")
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Ticket with id {invalid_ticket_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
 
 
-@pytest.mark.skip(reason="Definir comportamento para update de ticket inexistente.")
 def test_update_ticket_returns_not_found_for_unknown_id() -> None:
-    pass
+    invalid_ticket_id = 999
+
+    response = client.patch(
+        f"{API_PREFIX}/tickets/{invalid_ticket_id}",
+        json={
+            "priority": "urgent",
+            "status": "closed",
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 404
+    assert body["success"] is False
+    assert body["message"] == f"Ticket with id {invalid_ticket_id} was not found."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    error_codes = {error["code"] for error in body["details"]["errors"]}
+
+    assert "not_found" in error_codes
+
+
+def test_list_tickets_returns_invalid_sort_field() -> None:
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"sort_field": "invalid_field", "sort_order": "asc"},
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    errors = body["details"]["errors"]
+    assert len(errors) == 1
+
+    error = errors[0]
+    assert error["code"] == "enum"
+    assert error["field"] == "query -> sort_field"
+    assert error["message"] == (
+        "Invalid value 'invalid_field'. "
+        "Input should be 'id', 'title', 'priority' or 'status'"
+    )
+
+
+def test_list_tickets_returns_invalid_sort_order() -> None:
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"sort_field": "priority", "sort_order": "invalid_order"},
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    errors = body["details"]["errors"]
+    assert len(errors) == 1
+
+    error = errors[0]
+    assert error["code"] == "enum"
+    assert error["field"] == "query -> sort_order"
+    assert error["message"] == (
+        "Invalid value 'invalid_order'. Input should be 'asc' or 'desc'"
+    )
+
+
+def test_list_tickets_filters_by_status() -> None:
+    category_id = _create_category()
+    open_ticket_id = _create_ticket(
+        title="Monitor sem imagem",
+        category_id=category_id,
+        priority="low",
+    )
+    closed_ticket_id = _create_ticket(
+        title="VPN indisponível",
+        category_id=category_id,
+        priority="high",
+    )
+
+    client.patch(
+        f"{API_PREFIX}/tickets/{closed_ticket_id}",
+        json={"status": "closed"},
+    )
+
+    response = client.get(f"{API_PREFIX}/tickets", params={"status": "open"})
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == open_ticket_id
+    assert body["items"][0]["status"] == "open"
+
+
+def test_list_tickets_filters_by_priority() -> None:
+    category_id = _create_category()
+    _create_ticket(
+        title="Teclado com falha",
+        category_id=category_id,
+        priority="low",
+    )
+    high_priority_ticket_id = _create_ticket(
+        title="Sistema financeiro fora",
+        category_id=category_id,
+        priority="high",
+    )
+
+    response = client.get(f"{API_PREFIX}/tickets", params={"priority": "high"})
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == high_priority_ticket_id
+    assert body["items"][0]["priority"] == "high"
+
+
+def test_list_tickets_filters_by_category() -> None:
+    hardware_category_id = _create_category()
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    expected_ticket_id = _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="high",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/tickets", params={"category_id": software_category_id}
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == expected_ticket_id
+    assert body["items"][0]["priority"] == "high"
+
+
+def test_list_tickets_filters_by_category_and_priority() -> None:
+    hardware_category_id = _create_category()
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    expected_ticket_id = _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="high",
+    )
+    _create_ticket(
+        title="Editor travando",
+        category_id=software_category_id,
+        priority="low",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={
+            "category_id": software_category_id,
+            "priority": "high",
+        },
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 1
+    assert body["items"][0]["id"] == expected_ticket_id
+    assert body["items"][0]["category_id"] == software_category_id
+    assert body["items"][0]["priority"] == "high"
+
+
+def test_list_tickets_ordered_by_id_descending() -> None:
+    hardware_category_id = _create_category()
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="high",
+    )
+    third_ticket_id = _create_ticket(
+        title="Editor travando",
+        category_id=software_category_id,
+        priority="low",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"sort_order": "desc"},
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 3
+    assert body["items"][0]["id"] == third_ticket_id
+    assert body["items"][0]["category_id"] == software_category_id
+    assert body["items"][0]["priority"] == "low"
+
+
+def test_list_tickets_ordered_by_priority_descending() -> None:
+    hardware_category_id = _create_category()
+    software_category_id = _create_category("Software", "Categoria para sistemas", True)
+
+    _create_ticket(
+        title="Mouse quebrado",
+        category_id=hardware_category_id,
+        priority="high",
+    )
+    _create_ticket(
+        title="ERP lento",
+        category_id=software_category_id,
+        priority="medium",
+    )
+    last_expected_ticket_id = _create_ticket(
+        title="Editor travando",
+        category_id=software_category_id,
+        priority="low",
+    )
+    first_expected_ticket_id = _create_ticket(
+        title="Sistema offline",
+        category_id=software_category_id,
+        priority="urgent",
+    )
+
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"sort_field": "priority", "sort_order": "desc"},
+    )
+    body = response.json()
+
+    assert response.status_code == 200
+    assert len(body["items"]) == 4
+    assert body["items"][0]["id"] == first_expected_ticket_id
+    assert body["items"][0]["category_id"] == software_category_id
+    assert body["items"][0]["priority"] == "urgent"
+    assert body["items"][3]["id"] == last_expected_ticket_id
+    assert body["items"][3]["category_id"] == software_category_id
+    assert body["items"][3]["priority"] == "low"

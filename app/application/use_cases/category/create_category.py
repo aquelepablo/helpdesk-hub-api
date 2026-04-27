@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from app.application.interfaces.repositories.category_repository import (
+    CategoryRepository,
+)
 from app.domain.entities.category import Category
-from app.domain.repositories.category_repository import CategoryRepository
 
 
 @dataclass(slots=True)
@@ -12,8 +14,8 @@ class CreateCategoryInput:
 
 
 class CreateCategoryUseCase:
-    def __init__(self, repository: CategoryRepository) -> None:
-        self._category_repository = repository
+    def __init__(self, category_repository: CategoryRepository) -> None:
+        self._category_repository = category_repository
 
     def execute(self, input_data: CreateCategoryInput) -> Category:
 
@@ -23,6 +25,6 @@ class CreateCategoryUseCase:
             is_active=input_data.is_active,
         )
 
-        persisted_category = self._category_repository.create(new_category)
+        persisted_category = self._category_repository.save(new_category)
 
         return persisted_category

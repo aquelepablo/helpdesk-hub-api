@@ -3,10 +3,19 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.adapters.http.exception_handlers.handlers import register_exception_handlers
-from app.adapters.http.routers import category_router, system_router, ticket_router
-from app.infra.bootstrap.seed_categories import seed_categories
-from app.infra.settings.project_metadata import project_metadata
+from app.api.exception_handlers.handlers import register_exception_handlers
+from app.api.routers import (
+    category_router,
+    comment_router,
+    system_router,
+    ticket_router,
+)
+from app.infrastructure.bootstrap.seed_categories import seed_categories
+from app.infrastructure.container import Container
+from app.infrastructure.logging.logging_config import configure_logging
+
+# from app.infrastructure.settings.project_metadata import project_metadata
+from app.infrastructure.settings.settings import settings
 
 API_PREFIX = "/api/v1"
 
@@ -18,11 +27,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
+    """
+    Create and configure the FastAPI application.
+    This function sets up the application with necessary configurations, including
+
+    Returns:
+        FastAPI: An instance of the FastAPI application ready to be run.
+    """
+    configure_logging()
+
+    container = Container()
+    container.wire(modules=[category_router, ticket_router, comment_router])
 
     app = FastAPI(
-        title=project_metadata.title,
-        description=project_metadata.description,
-        version=project_metadata.version,
+        title=settings.app_title,
+        description=settings.app_description,
+        version=settings.app_version,
         lifespan=lifespan,
     )
 
@@ -33,6 +53,7 @@ def create_app() -> FastAPI:
     app.include_router(system_router.router, prefix=API_PREFIX)
     app.include_router(category_router.router, prefix=API_PREFIX)
     app.include_router(ticket_router.router, prefix=API_PREFIX)
+    app.include_router(comment_router.router, prefix=API_PREFIX)
 
     return app
 
