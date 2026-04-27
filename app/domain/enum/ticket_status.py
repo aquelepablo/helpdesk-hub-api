@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TicketStatus(Enum):
+class TicketStatus(StrEnum):
     """Represents the status of a ticket"""
 
     OPEN = "open"

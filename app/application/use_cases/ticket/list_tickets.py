@@ -33,7 +33,7 @@ class ListTicketsUseCase:
             priority=input_data.priority,
             category_id=input_data.category_id,
             sort_order=OrderCriterion(
-                field=input_data.sort_field.value, direction=input_data.sort_order
+                field=input_data.sort_field, direction=input_data.sort_order
             ),
         )
 

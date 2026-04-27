@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TicketSortField(Enum):
+class TicketSortField(StrEnum):
     """Represents the fields by which tickets can be sorted"""
 
     ID = "id"

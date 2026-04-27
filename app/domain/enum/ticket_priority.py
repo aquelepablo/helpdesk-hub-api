@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TicketPriority(Enum):
+class TicketPriority(StrEnum):
     """Represents the priority of a ticket"""
 
     LOW = "low"

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from app.infrastructure.logging.logger import getLogLevelNames
 
 
-class AppEnv(Enum):
+class AppEnv(StrEnum):
     DEVELOPMENT = "development"
     TEST = "test"
     PRODUCTION = "production"

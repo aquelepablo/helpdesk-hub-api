@@ -12,7 +12,5 @@ class TicketFilter:
     priority: TicketPriority | None = None
     category_id: int | None = None
     sort_order: OrderCriterion = field(
-        default_factory=lambda: OrderCriterion(
-            TicketSortField.ID.value, SortDirection.ASC
-        )
+        default_factory=lambda: OrderCriterion(TicketSortField.ID, SortDirection.ASC)
     )

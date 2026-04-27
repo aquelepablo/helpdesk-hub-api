@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 
-class SortDirection(Enum):
+class SortDirection(StrEnum):
     """Enumeration for sort directions."""
 
     ASC = "asc"

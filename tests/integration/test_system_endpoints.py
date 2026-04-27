@@ -41,7 +41,7 @@ def test_get_info_returns_application_metadata() -> None:
         "service": settings.app_title,
         "project_name": settings.app_name,
         "version": settings.app_version,
-        "environment": settings.app_env.value,
+        "environment": settings.app_env,
     }
 
 
