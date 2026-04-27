@@ -51,6 +51,7 @@ def test_list_tickets_returns_empty_list_when_memory_is_empty() -> None:
 
     assert response.status_code == 200
     assert response.json() == {
+        "message": "Tickets listados com sucesso",
         "items": [],
         "total_items": 0,
         "page": 1,
@@ -85,6 +86,7 @@ def test_list_tickets_returns_paginated_tickets() -> None:
     body = response.json()
 
     assert response.status_code == 200
+    assert body["message"] == "Tickets listados com sucesso"
     assert body["total_items"] == 3
     assert body["page"] == 2
     assert body["page_size"] == 2

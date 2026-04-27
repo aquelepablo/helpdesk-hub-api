@@ -54,7 +54,7 @@ def test_list_comments_returns_empty_list_when_ticket_has_no_comments() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "success": True,
-        "message": "Listagem de comentários realizada com sucesso",
+        "message": "Comentários listados com sucesso",
         "data": [],
     }
 
@@ -94,7 +94,7 @@ def test_list_comments_returns_ticket_comments() -> None:
 
     assert response.status_code == 200
     assert body["success"] is True
-    assert body["message"] == "Listagem de comentários realizada com sucesso"
+    assert body["message"] == "Comentários listados com sucesso"
     assert len(body["data"]) == 2
     assert body["data"][0]["content"] == "Primeiro comentário"
     assert body["data"][1]["content"] == "Segundo comentário"

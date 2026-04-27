@@ -8,6 +8,7 @@ from app.api.docs.error_responses import (
 )
 from app.api.mappers.pagination_mapper import to_pagination_params
 from app.api.mappers.ticket_mapper import to_ticket_page_response
+from app.api.messages.catalog import MessageKey, get_message
 from app.api.schemas.common_schema import ApiResponse
 from app.api.schemas.pagination_schema import PagedResponse, PageQuery
 from app.api.schemas.ticket_schema import (
@@ -51,7 +52,9 @@ def list_tickets(
 
     tickets_page = use_case.execute(input_data)
 
-    return to_ticket_page_response(tickets_page)
+    return to_ticket_page_response(
+        message=get_message(MessageKey.TICKET_LISTED), page=tickets_page
+    )
 
 
 @router.post(
@@ -68,7 +71,7 @@ def create_ticket(
     input_data = CreateTicketInput(**request.model_dump())
     new_ticket = use_case.execute(input_data)
     response = TicketResponse.model_validate(new_ticket)
-    return ApiResponse(message="Ticket criado com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.TICKET_CREATED), data=response)
 
 
 @router.get(
@@ -86,7 +89,7 @@ def get_ticket_by_id(
 ) -> ApiResponse[TicketResponse]:
     ticket = use_case.execute(ticket_id)
     response = TicketResponse.model_validate(ticket)
-    return ApiResponse(message="Detalhes do ticket obtidos com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.TICKET_RETRIEVED), data=response)
 
 
 @router.patch(
@@ -104,4 +107,4 @@ def update_ticket(
     input_data = UpdateTicketInput(ticket_id, **request.model_dump(exclude_unset=True))
     updated_ticket = use_case.execute(input_data)
     response = TicketResponse.model_validate(updated_ticket)
-    return ApiResponse(message="Ticket atualizado com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.TICKET_UPDATED), data=response)

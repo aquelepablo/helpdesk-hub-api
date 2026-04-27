@@ -5,6 +5,7 @@ from app.api.docs.error_responses import (
     CREATE_RESPONSES,
     UPDATE_RESPONSES,
 )
+from app.api.messages.catalog import MessageKey, get_message
 from app.api.schemas.comment_schema import (
     CommentCreateRequest,
     CommentResponse,
@@ -37,9 +38,7 @@ def list_comments(
 ) -> ApiResponse[list[CommentResponse]]:
     comments = use_case.execute(ticket_id)
     responses = [CommentResponse.model_validate(comment) for comment in comments]
-    return ApiResponse(
-        message="Listagem de comentários realizada com sucesso", data=responses
-    )
+    return ApiResponse(message=get_message(MessageKey.COMMENT_LISTED), data=responses)
 
 
 @router.post(
@@ -59,7 +58,7 @@ def create_comment(
     input_data = CreateCommentInput(ticket_id=ticket_id, content=request.content)
     new_comment = use_case.execute(input_data)
     response = CommentResponse.model_validate(new_comment)
-    return ApiResponse(message="Comentário criado com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.COMMENT_CREATED), data=response)
 
 
 @router.patch(
@@ -82,4 +81,4 @@ def update_comment(
     )
     updated_comment = use_case.execute(input_data)
     response = CommentResponse.model_validate(updated_comment)
-    return ApiResponse(message="Comentário atualizado com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.COMMENT_UPDATED), data=response)

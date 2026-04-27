@@ -11,6 +11,7 @@ class PageQuery(BaseModel):
 
 
 class PagedResponse(BaseModel, Generic[T]):
+    message: str
     items: list[T]
     total_items: int
     page: int

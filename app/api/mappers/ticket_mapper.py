@@ -10,8 +10,11 @@ def to_ticket_response(ticket: Ticket) -> TicketResponse:
     return TicketResponse.model_validate(ticket)
 
 
-def to_ticket_page_response(page: PagedResult[Ticket]) -> PagedResponse[TicketResponse]:
+def to_ticket_page_response(
+    message: str, page: PagedResult[Ticket]
+) -> PagedResponse[TicketResponse]:
     return PagedResponse(
+        message=message,
         items=[to_ticket_response(ticket) for ticket in page.items],
         total_items=page.total_items,
         page=page.page,

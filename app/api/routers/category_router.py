@@ -6,6 +6,7 @@ from app.api.docs.error_responses import (
     GET_BY_ID_RESPONSES,
     UPDATE_RESPONSES,
 )
+from app.api.messages.catalog import MessageKey, get_message
 from app.api.schemas.category_schema import (
     CategoryCreateRequest,
     CategoryResponse,
@@ -40,9 +41,7 @@ def list_categories(
 ) -> ApiResponse[list[CategoryResponse]]:
     categories = use_case.execute()
     responses = [CategoryResponse.model_validate(category) for category in categories]
-    return ApiResponse(
-        message="Listagem de categorias realizada com sucesso", data=responses
-    )
+    return ApiResponse(message=get_message(MessageKey.CATEGORY_LISTED), data=responses)
 
 
 @router.post(
@@ -61,7 +60,7 @@ def create_category(
     input_data = CreateCategoryInput(**request.model_dump())
     new_category = use_case.execute(input_data)
     response = CategoryResponse.model_validate(new_category)
-    return ApiResponse(message="Categoria criada com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.CATEGORY_CREATED), data=response)
 
 
 @router.get(
@@ -80,7 +79,7 @@ def get_category_by_id(
     category = use_case.execute(category_id)
     response = CategoryResponse.model_validate(category)
     return ApiResponse(
-        message="Detalhes da categoria obtidos com sucesso", data=response
+        message=get_message(MessageKey.CATEGORY_RETRIEVED), data=response
     )
 
 
@@ -103,4 +102,4 @@ def update_category(
     )
     updated_category = use_case.execute(input_data)
     response = CategoryResponse.model_validate(updated_category)
-    return ApiResponse(message="Categoria atualizada com sucesso", data=response)
+    return ApiResponse(message=get_message(MessageKey.CATEGORY_UPDATED), data=response)

@@ -11,7 +11,7 @@ def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "success": True,
-        "message": "Listagem de categorias realizada com sucesso",
+        "message": "Categorias listadas com sucesso",
         "data": [],
     }
 
@@ -52,7 +52,7 @@ def test_get_category_by_id_returns_category_details() -> None:
 
     assert response.status_code == 200
     assert body["success"] is True
-    assert body["message"] == "Detalhes da categoria obtidos com sucesso"
+    assert body["message"] == "Categoria obtida com sucesso"
     assert body["data"]["id"] == category_id
     assert body["data"]["name"] == "Acesso"
 
