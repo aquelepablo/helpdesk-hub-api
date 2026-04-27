@@ -240,6 +240,57 @@ def test_update_ticket_returns_not_found_for_unknown_id() -> None:
     assert "not_found" in error_codes
 
 
+def test_list_tickets_returns_invalid_sort_field() -> None:
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"sort_field": "invalid_field", "sort_order": "asc"},
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    errors = body["details"]["errors"]
+    assert len(errors) == 1
+
+    error = errors[0]
+    assert error["code"] == "enum"
+    assert error["field"] == "query -> sort_field"
+    assert error["message"] == (
+        "Invalid value 'invalid_field'. "
+        "Input should be 'id', 'title', 'priority' or 'status'"
+    )
+
+
+def test_list_tickets_returns_invalid_sort_order() -> None:
+    response = client.get(
+        f"{API_PREFIX}/tickets",
+        params={"sort_field": "priority", "sort_order": "invalid_order"},
+    )
+    body = response.json()
+
+    assert response.status_code == 422
+    assert body["success"] is False
+    assert body["message"] == "Request validation failed."
+    assert "details" in body
+    assert "errors" in body["details"]
+    assert len(body["details"]["errors"]) >= 1
+
+    errors = body["details"]["errors"]
+    assert len(errors) == 1
+
+    error = errors[0]
+    assert error["code"] == "enum"
+    assert error["field"] == "query -> sort_order"
+    assert error["message"] == (
+        "Invalid value 'invalid_order'. Input should be 'asc' or 'desc'"
+    )
+
+
 def test_list_tickets_filters_by_status() -> None:
     category_id = _create_category()
     open_ticket_id = _create_ticket(

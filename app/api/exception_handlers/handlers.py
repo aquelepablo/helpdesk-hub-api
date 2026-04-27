@@ -25,6 +25,17 @@ def _build_error_response(
     return JSONResponse(status_code=status_code, content=payload.model_dump())
 
 
+def _format_validation_error_message(error: dict[str, object]) -> str:
+    message = str(error["msg"])
+
+    if error["type"] == "enum" and "input" in error:
+        invalid_value = error.get("input")
+        if isinstance(invalid_value, str | int | float | bool):
+            return f"Invalid value {invalid_value!r}. {message}"
+
+    return message
+
+
 async def handle_domain_error(_: Request, exc: Exception) -> JSONResponse:
     """Handle domain-specific errors created by the application."""
     domain_exc = cast(DomainError, exc)
@@ -46,7 +57,7 @@ async def handle_request_validation_error(_: Request, exc: Exception) -> JSONRes
         errors.append(
             ErrorItem(
                 code=error["type"],
-                message=error["msg"],
+                message=_format_validation_error_message(error),
                 field=field_path or None,
             )
         )
