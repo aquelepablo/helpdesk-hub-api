@@ -2,37 +2,40 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, field_validator
 
+MAX_COMMENT_LENGTH = 500
+
+
+def validate_comment_content(value: str) -> str:
+    cleaned_value = value.strip()
+    if not cleaned_value:
+        raise ValueError("Comment cannot be empty or blank.")
+    return cleaned_value
+
 
 class CommentCreateRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
     content: str = Field(
-        ..., min_length=1, max_length=500, description="Comment's content."
+        ...,
+        min_length=1,
+        max_length=MAX_COMMENT_LENGTH,
+        description="Comment's content.",
     )
 
-    @field_validator("content")
-    @classmethod
-    def validate_content(cls, value: str) -> str:
-        cleaned_value = value.strip()
-        if not cleaned_value:
-            raise ValueError("Comment cannot be empty or blank.")
-        return cleaned_value
+    _validade_content = field_validator("content")(validate_comment_content)
 
 
 class CommentUpdateRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
     content: str = Field(
-        ..., min_length=1, max_length=500, description="Comment's content."
+        ...,
+        min_length=1,
+        max_length=MAX_COMMENT_LENGTH,
+        description="Comment's content.",
     )
 
-    @field_validator("content")
-    @classmethod
-    def validate_content(cls, value: str) -> str:
-        cleaned_value = value.strip()
-        if not cleaned_value:
-            raise ValueError("Comment cannot be empty or blank.")
-        return cleaned_value
+    _validade_content = field_validator("content")(validate_comment_content)
 
 
 class CommentResponse(BaseModel):
