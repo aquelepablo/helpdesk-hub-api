@@ -1,4 +1,3 @@
-import copy
 from datetime import UTC, datetime
 from math import ceil
 from operator import attrgetter
@@ -9,6 +8,7 @@ from app.application.dtos.ticket_query import TicketFilter
 from app.domain.entities.ticket import Ticket
 from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
 from app.infrastructure.db.repositories.memory.memory_database import ticket_db
+from app.infrastructure.db.repositories.memory.safe_copy import detached_copy
 
 
 class InMemoryTicketRepository:
@@ -28,7 +28,7 @@ class InMemoryTicketRepository:
 
         stored_ticket = ticket_db.add(ticket)
 
-        return copy.deepcopy(stored_ticket)
+        return detached_copy(stored_ticket)
 
     def _update(self, ticket_id: int, updated_ticket: Ticket) -> Ticket:
         stored_ticket = self._find_stored_ticket_by_id(ticket_id)
@@ -38,7 +38,7 @@ class InMemoryTicketRepository:
         stored_ticket.status = updated_ticket.status
         stored_ticket.updated_at = datetime.now(UTC)
 
-        return copy.deepcopy(stored_ticket)
+        return detached_copy(stored_ticket)
 
     def _sort_tickets_list(
         self, order_criterion: OrderCriterion, tickets_list: list[Ticket]
@@ -123,7 +123,7 @@ class InMemoryTicketRepository:
         )
 
         return PagedResult(
-            items=copy.deepcopy(paginated_tickets),
+            items=detached_copy(paginated_tickets),
             total_items=total_items,
             page=pagination_params.page,
             page_size=pagination_params.page_size,
@@ -132,4 +132,4 @@ class InMemoryTicketRepository:
 
     def get_by_id(self, ticket_id: int) -> Ticket:
         stored_ticket = self._find_stored_ticket_by_id(ticket_id)
-        return copy.deepcopy(stored_ticket)
+        return detached_copy(stored_ticket)

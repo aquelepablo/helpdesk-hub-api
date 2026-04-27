@@ -1,9 +1,9 @@
-import copy
 from datetime import UTC, datetime
 
 from app.domain.entities.category import Category
 from app.domain.exceptions.category_exceptions import CategoryNotFoundError
 from app.infrastructure.db.repositories.memory.memory_database import category_db
+from app.infrastructure.db.repositories.memory.safe_copy import detached_copy
 
 
 class InMemoryCategoryRepository:
@@ -23,7 +23,7 @@ class InMemoryCategoryRepository:
 
         stored_category = category_db.add(category)
 
-        return copy.deepcopy(stored_category)
+        return detached_copy(stored_category)
 
     def _update(self, category_id: int, updated_category: Category) -> Category:
         stored_category = self._find_stored_category_by_id(category_id)
@@ -33,7 +33,7 @@ class InMemoryCategoryRepository:
         stored_category.is_active = updated_category.is_active
         stored_category.updated_at = datetime.now(UTC)
 
-        return copy.deepcopy(stored_category)
+        return detached_copy(stored_category)
 
     def save(self, category: Category) -> Category:
         if category.id is None:
@@ -42,8 +42,8 @@ class InMemoryCategoryRepository:
             return self._update(category.id, category)
 
     def list_all(self) -> list[Category]:
-        return copy.deepcopy(category_db.categories)
+        return detached_copy(category_db.categories)
 
     def get_by_id(self, category_id: int) -> Category:
         stored_category = self._find_stored_category_by_id(category_id)
-        return copy.deepcopy(stored_category)
+        return detached_copy(stored_category)

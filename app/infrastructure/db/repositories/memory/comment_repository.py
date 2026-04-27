@@ -1,9 +1,9 @@
-import copy
 from datetime import UTC, datetime
 
 from app.domain.entities.comment import Comment
 from app.domain.exceptions.comment_exceptions import CommentNotFoundError
 from app.infrastructure.db.repositories.memory.memory_database import comment_db
+from app.infrastructure.db.repositories.memory.safe_copy import detached_copy
 
 
 class InMemoryCommentRepository:
@@ -30,7 +30,7 @@ class InMemoryCommentRepository:
 
         stored_comment = comment_db.add(comment)
 
-        return copy.deepcopy(stored_comment)
+        return detached_copy(stored_comment)
 
     def _update(
         self, comment_id: int, ticket_id: int, updated_comment: Comment
@@ -42,7 +42,7 @@ class InMemoryCommentRepository:
         stored_comment.content = updated_comment.content
         stored_comment.updated_at = datetime.now(UTC)
 
-        return copy.deepcopy(stored_comment)
+        return detached_copy(stored_comment)
 
     def save(self, comment: Comment) -> Comment:
         if comment.id is None:
@@ -54,10 +54,10 @@ class InMemoryCommentRepository:
         comments = [
             comment for comment in comment_db.comments if comment.ticket_id == ticket_id
         ]
-        return copy.deepcopy(comments)
+        return detached_copy(comments)
 
     def get_by_id_and_ticket_id(self, comment_id: int, ticket_id: int) -> Comment:
         stored_comment = self._find_stored_comment_by_id_and_ticket_id(
             comment_id, ticket_id
         )
-        return copy.deepcopy(stored_comment)
+        return detached_copy(stored_comment)
