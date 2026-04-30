@@ -6,7 +6,9 @@ from app.domain.entities.ticket import Ticket
 
 
 class TicketRepository(Protocol):
-    def save(self, ticket: Ticket) -> Ticket: ...
+    def create(self, ticket: Ticket) -> Ticket: ...
+
+    def update(self, updated_ticket: Ticket) -> Ticket: ...
 
     def list_by_filter(
         self, ticket_filter: TicketFilter, pagination_params: PaginationParams

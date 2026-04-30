@@ -46,4 +46,4 @@ class UpdateTicketUseCase:
         if input_data.status is not None:
             existing_ticket.status = input_data.status
 
-        return self._ticket_repo.save(existing_ticket)
+        return self._ticket_repo.update(existing_ticket)

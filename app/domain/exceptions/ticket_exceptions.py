@@ -16,3 +16,8 @@ class InvalidTicketTransitionError(BusinessValidationError):
     def __init__(self) -> None:
         message = "Transição de status inválida para o ticket."
         super().__init__(message=message)
+
+
+class TicketIdRequiredForUpdateError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Ticket id is required to update a ticket")

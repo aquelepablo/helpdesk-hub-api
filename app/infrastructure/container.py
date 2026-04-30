@@ -8,7 +8,7 @@ from app.application.use_cases.comment.create_comment import CreateCommentUseCas
 from app.application.use_cases.comment.list_comments import ListCommentsUseCase
 from app.application.use_cases.comment.update_comment import UpdateCommentUseCase
 from app.application.use_cases.ticket.create_ticket import CreateTicketUseCase
-from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
+from app.application.use_cases.ticket.get_ticket import GetTicketUseCase
 from app.application.use_cases.ticket.list_tickets import ListTicketsUseCase
 from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
 from app.infrastructure.db.repositories.sqlalchemy import (
@@ -73,8 +73,8 @@ class Container(containers.DeclarativeContainer):
         ListTicketsUseCase, ticket_repository=ticket_repository
     )
 
-    get_ticket_by_id_use_case = providers.Factory(
-        GetTicketByIdUseCase, ticket_repository=ticket_repository
+    get_ticket_use_case = providers.Factory(
+        GetTicketUseCase, ticket_repository=ticket_repository
     )
 
     # Comments

@@ -38,6 +38,6 @@ class CreateTicketUseCase:
             priority=input_data.priority,
         )
 
-        persisted_ticket: Ticket = self._ticket_repo.save(new_ticket)
+        persisted_ticket: Ticket = self._ticket_repo.create(new_ticket)
 
         return persisted_ticket

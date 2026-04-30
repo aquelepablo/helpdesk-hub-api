@@ -7,7 +7,10 @@ from app.application.dtos.sorting import SortDirection
 from app.application.dtos.ticket_query import TicketFilter
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_sort_field import TicketSortField
-from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
+from app.domain.exceptions.ticket_exceptions import (
+    TicketIdRequiredForUpdateError,
+    TicketNotFoundError,
+)
 from app.infrastructure.db.repositories.memory.memory_database import ticket_db
 from app.infrastructure.db.repositories.memory.safe_copy import detached_copy
 
@@ -20,7 +23,7 @@ class InMemoryTicketRepository:
 
         raise TicketNotFoundError(ticket_id)
 
-    def _create(self, ticket: Ticket) -> Ticket:
+    def create(self, ticket: Ticket) -> Ticket:
         ticket_db.id_counter += 1
         ticket.id = ticket_db.id_counter
 
@@ -31,8 +34,11 @@ class InMemoryTicketRepository:
 
         return detached_copy(stored_ticket)
 
-    def _update(self, ticket_id: int, updated_ticket: Ticket) -> Ticket:
-        stored_ticket = self._find_stored_ticket_by_id(ticket_id)
+    def update(self, updated_ticket: Ticket) -> Ticket:
+        if updated_ticket.id is None:
+            raise TicketIdRequiredForUpdateError()
+
+        stored_ticket = self._find_stored_ticket_by_id(updated_ticket.id)
 
         stored_ticket.category_id = updated_ticket.category_id
         stored_ticket.priority = updated_ticket.priority
@@ -106,12 +112,6 @@ class InMemoryTicketRepository:
         )
 
         return sorted_tickets
-
-    def save(self, ticket: Ticket) -> Ticket:
-        if ticket.id is None:
-            return self._create(ticket)
-        else:
-            return self._update(ticket.id, ticket)
 
     # TODO: split responsibilities
     def list_by_filter(

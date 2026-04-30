@@ -21,7 +21,7 @@ from app.application.use_cases.ticket.create_ticket import (
     CreateTicketInput,
     CreateTicketUseCase,
 )
-from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
+from app.application.use_cases.ticket.get_ticket import GetTicketUseCase
 from app.application.use_cases.ticket.list_tickets import (
     ListTicketsInput,
     ListTicketsUseCase,

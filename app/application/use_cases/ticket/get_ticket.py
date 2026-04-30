@@ -4,7 +4,7 @@ from app.application.interfaces.repositories.ticket_repository import (
 from app.domain.entities.ticket import Ticket
 
 
-class GetTicketByIdUseCase:
+class GetTicketUseCase:
     def __init__(self, ticket_repository: TicketRepository) -> None:
         self._ticket_repository = ticket_repository
 
