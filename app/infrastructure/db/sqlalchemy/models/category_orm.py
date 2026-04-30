@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.db.sqlalchemy.database import Base
+
+if TYPE_CHECKING:
+    from app.infrastructure.db.sqlalchemy.models import TicketORM
 
 
 class CategoryORM(Base):
@@ -25,6 +29,7 @@ class CategoryORM(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    tickets: Mapped[list["TicketORM"]] = relationship(back_populates="category")
 
     def __repr__(self) -> str:
         return (
