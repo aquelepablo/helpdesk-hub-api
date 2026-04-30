@@ -1,4 +1,4 @@
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Closing, Provide, inject
 from fastapi import APIRouter, Depends, status
 
 from app.api.docs.error_responses import (
@@ -36,7 +36,7 @@ router = APIRouter(prefix="/categories", tags=["categories"])
 @inject
 def list_categories(
     use_case: ListCategoriesUseCase = Depends(
-        Provide[Container.list_categories_use_case]
+        Closing[Provide[Container.list_categories_use_case]]
     ),
 ) -> ApiResponse[list[CategoryResponse]]:
     categories = use_case.execute()
@@ -54,8 +54,8 @@ def list_categories(
 def create_category(
     request: CategoryCreateRequest,
     use_case: CreateCategoryUseCase = Depends(
-        Provide[Container.create_category_use_case]
-    ),  # noqa: E501
+        Closing[Provide[Container.create_category_use_case]]
+    ),
 ) -> ApiResponse[CategoryResponse]:
     input_data = CreateCategoryInput(**request.model_dump())
     new_category = use_case.execute(input_data)
@@ -73,8 +73,8 @@ def create_category(
 def get_category_by_id(
     category_id: int,
     use_case: GetCategoryByIdUseCase = Depends(
-        Provide[Container.get_category_by_id_use_case]
-    ),  # noqa: E501
+        Closing[Provide[Container.get_category_by_id_use_case]]
+    ),
 ) -> ApiResponse[CategoryResponse]:
     category = use_case.execute(category_id)
     response = CategoryResponse.model_validate(category)
@@ -94,8 +94,8 @@ def update_category(
     category_id: int,
     request: CategoryUpdateRequest,
     use_case: UpdateCategoryUseCase = Depends(
-        Provide[Container.update_category_use_case]
-    ),  # noqa: E501
+        Closing[Provide[Container.update_category_use_case]]
+    ),
 ) -> ApiResponse[CategoryResponse]:
     input_data = UpdateCategoryInput(
         category_id, **request.model_dump(exclude_unset=True)

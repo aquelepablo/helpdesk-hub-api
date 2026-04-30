@@ -11,15 +11,16 @@ from app.application.use_cases.ticket.create_ticket import CreateTicketUseCase
 from app.application.use_cases.ticket.get_ticket_by_id import GetTicketByIdUseCase
 from app.application.use_cases.ticket.list_tickets import ListTicketsUseCase
 from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
-from app.infrastructure.db.repositories.memory.category_repository import (
-    InMemoryCategoryRepository,
-)
 from app.infrastructure.db.repositories.memory.comment_repository import (
     InMemoryCommentRepository,
 )
 from app.infrastructure.db.repositories.memory.ticket_repository import (
     InMemoryTicketRepository,
 )
+from app.infrastructure.db.repositories.sqlalchemy.category_repository import (
+    SQLAlchemyCategoryRepository,
+)
+from app.infrastructure.db.sqlalchemy.database import get_db_session
 
 
 class Container(containers.DeclarativeContainer):
@@ -27,8 +28,13 @@ class Container(containers.DeclarativeContainer):
     Container de dependências para a aplicação.
     """
 
+    db_session = providers.Resource(get_db_session)
+
     ticket_repository = providers.Singleton(InMemoryTicketRepository)
-    category_repository = providers.Singleton(InMemoryCategoryRepository)
+    category_repository = providers.Factory(
+        SQLAlchemyCategoryRepository,
+        session=db_session,
+    )
     comment_repository = providers.Singleton(InMemoryCommentRepository)
 
     # Categories

@@ -1,4 +1,4 @@
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Closing, Provide, inject
 from fastapi import APIRouter, Depends, status
 
 from app.api.docs.error_responses import (
@@ -66,7 +66,9 @@ def list_tickets(
 @inject
 def create_ticket(
     request: TicketCreateRequest,
-    use_case: CreateTicketUseCase = Depends(Provide[Container.create_ticket_use_case]),
+    use_case: CreateTicketUseCase = Depends(
+        Closing[Provide[Container.create_ticket_use_case]]
+    ),
 ) -> ApiResponse[TicketResponse]:
     input_data = CreateTicketInput(**request.model_dump())
     new_ticket = use_case.execute(input_data)
@@ -102,7 +104,9 @@ def get_ticket_by_id(
 def update_ticket(
     ticket_id: int,
     request: TicketUpdateRequest,
-    use_case: UpdateTicketUseCase = Depends(Provide[Container.update_ticket_use_case]),
+    use_case: UpdateTicketUseCase = Depends(
+        Closing[Provide[Container.update_ticket_use_case]]
+    ),
 ) -> ApiResponse[TicketResponse]:
     input_data = UpdateTicketInput(ticket_id, **request.model_dump(exclude_unset=True))
     updated_ticket = use_case.execute(input_data)
