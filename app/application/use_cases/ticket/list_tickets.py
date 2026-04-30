@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.dtos.pagination import PagedResult, PaginationParams
-from app.application.dtos.sorting import OrderCriterion, SortDirection
+from app.application.dtos.sorting import SortDirection
 from app.application.dtos.ticket_query import TicketFilter
 from app.application.interfaces.repositories.ticket_repository import (
     TicketRepository,
@@ -19,7 +19,7 @@ class ListTicketsInput:
     priority: TicketPriority | None = None
     category_id: int | None = None
     sort_field: TicketSortField = TicketSortField.ID
-    sort_order: SortDirection = SortDirection.ASC
+    sort_direction: SortDirection = SortDirection.DESC
 
 
 class ListTicketsUseCase:
@@ -32,9 +32,8 @@ class ListTicketsUseCase:
             status=input_data.status,
             priority=input_data.priority,
             category_id=input_data.category_id,
-            sort_order=OrderCriterion(
-                field=input_data.sort_field, direction=input_data.sort_order
-            ),
+            sort_field=input_data.sort_field,
+            sort_direction=input_data.sort_direction,
         )
 
         tickets = self._ticket_repository.list_by_filter(

@@ -44,7 +44,9 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 def list_tickets(
     filters: TicketFilterRequest = Depends(),
     page_query: PageQuery = Depends(),
-    use_case: ListTicketsUseCase = Depends(Provide[Container.list_tickets_use_case]),
+    use_case: ListTicketsUseCase = Depends(
+        Closing[Provide[Container.list_tickets_use_case]]
+    ),
 ) -> PagedResponse[TicketResponse]:
     input_data = ListTicketsInput(
         pagination_params=to_pagination_params(page_query), **filters.model_dump()
@@ -86,8 +88,8 @@ def create_ticket(
 def get_ticket_by_id(
     ticket_id: int,
     use_case: GetTicketByIdUseCase = Depends(
-        Provide[Container.get_ticket_by_id_use_case]
-    ),  # noqa: E501
+        Closing[Provide[Container.get_ticket_by_id_use_case]]
+    ),
 ) -> ApiResponse[TicketResponse]:
     ticket = use_case.execute(ticket_id)
     response = TicketResponse.model_validate(ticket)

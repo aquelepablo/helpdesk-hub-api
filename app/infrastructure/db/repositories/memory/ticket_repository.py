@@ -3,9 +3,10 @@ from math import ceil
 from operator import attrgetter
 
 from app.application.dtos.pagination import PagedResult, PaginationParams
-from app.application.dtos.sorting import OrderCriterion, SortDirection
+from app.application.dtos.sorting import SortDirection
 from app.application.dtos.ticket_query import TicketFilter
 from app.domain.entities.ticket import Ticket
+from app.domain.enum.ticket_sort_field import TicketSortField
 from app.domain.exceptions.ticket_exceptions import TicketNotFoundError
 from app.infrastructure.db.repositories.memory.memory_database import ticket_db
 from app.infrastructure.db.repositories.memory.safe_copy import detached_copy
@@ -41,10 +42,13 @@ class InMemoryTicketRepository:
         return detached_copy(stored_ticket)
 
     def _sort_tickets_list(
-        self, order_criterion: OrderCriterion, tickets_list: list[Ticket]
+        self,
+        sort_field: TicketSortField,
+        sort_order: SortDirection,
+        tickets_list: list[Ticket],
     ) -> list[Ticket]:
-        sort_field = order_criterion.field
-        reverse = order_criterion.direction == SortDirection.DESC
+        sort_field = sort_field
+        reverse = sort_order == SortDirection.DESC
 
         sort_key_map = {
             "id": "id",
@@ -97,7 +101,9 @@ class InMemoryTicketRepository:
 
                 tickets.append(ticket)
 
-        sorted_tickets = self._sort_tickets_list(ticket_filter.sort_order, tickets)
+        sorted_tickets = self._sort_tickets_list(
+            ticket_filter.sort_field, ticket_filter.sort_direction, tickets
+        )
 
         return sorted_tickets
 

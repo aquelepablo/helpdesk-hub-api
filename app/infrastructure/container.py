@@ -14,11 +14,9 @@ from app.application.use_cases.ticket.update_ticket import UpdateTicketUseCase
 from app.infrastructure.db.repositories.memory.comment_repository import (
     InMemoryCommentRepository,
 )
-from app.infrastructure.db.repositories.memory.ticket_repository import (
-    InMemoryTicketRepository,
-)
-from app.infrastructure.db.repositories.sqlalchemy.category_repository import (
+from app.infrastructure.db.repositories.sqlalchemy import (
     SQLAlchemyCategoryRepository,
+    SQLAlchemyTicketRepository,
 )
 from app.infrastructure.db.sqlalchemy.database import get_db_session
 
@@ -30,7 +28,10 @@ class Container(containers.DeclarativeContainer):
 
     db_session = providers.Resource(get_db_session)
 
-    ticket_repository = providers.Singleton(InMemoryTicketRepository)
+    ticket_repository = providers.Factory(
+        SQLAlchemyTicketRepository,
+        session=db_session,
+    )
     category_repository = providers.Factory(
         SQLAlchemyCategoryRepository,
         session=db_session,
