@@ -11,7 +11,7 @@ from app.domain.enum.ticket_status import TicketStatus
 from app.infrastructure.db.sqlalchemy.database import Base
 
 if TYPE_CHECKING:
-    from app.infrastructure.db.sqlalchemy.models import CategoryORM
+    from app.infrastructure.db.sqlalchemy.models import CategoryORM, CommentORM
 
 
 def enum_values(enum_class: type[StrEnum]) -> list[str]:
@@ -60,6 +60,10 @@ class TicketORM(Base):
     )
 
     category: Mapped["CategoryORM"] = relationship(back_populates="tickets")
+    comments: Mapped[list["CommentORM"]] = relationship(
+        back_populates="ticket",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<TicketORM(id={self.id}, title={self.title}, status={self.status})>"
