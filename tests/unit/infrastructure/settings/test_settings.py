@@ -13,6 +13,7 @@ def test_settings_reads_database_url_from_env_file(
     monkeypatch.delenv("PORT", raising=False)
     monkeypatch.delenv("LOG_LEVEL", raising=False)
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("RUN_POSTGRES_TESTS", raising=False)
 
     env_file = tmp_path / ".env"
     env_file.write_text(
@@ -86,6 +87,7 @@ def test_settings_reads_runtime_values_from_env_file(
                 "PORT=9000",
                 "LOG_LEVEL=DEBUG",
                 "DATABASE_URL=postgresql://user:password@localhost:5432/helpdesk_db",
+                "RUN_POSTGRES_TESTS=true",
             ]
         ),
         encoding="utf-8",
@@ -96,3 +98,4 @@ def test_settings_reads_runtime_values_from_env_file(
     assert settings.environment == AppEnv.TEST
     assert settings.port == 9000
     assert settings.log_level == "DEBUG"
+    assert settings.run_postgres_tests is True
