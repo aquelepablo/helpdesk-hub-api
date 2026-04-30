@@ -26,7 +26,7 @@ def test_settings_reads_database_url_from_env_file(
                 "ENVIRONMENT=development",
                 "PORT=8000",
                 "LOG_LEVEL=INFO",
-                "DATABASE_URL=postgresql://user:password@localhost:5432/helpdesk_db",
+                "DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/helpdesk_db",
             ]
         ),
         encoding="utf-8",
@@ -35,7 +35,8 @@ def test_settings_reads_database_url_from_env_file(
     settings = Settings(_env_file=env_file)  # pyright: ignore[reportCallIssue]
 
     assert (
-        settings.database_url == "postgresql://user:password@localhost:5432/helpdesk_db"
+        settings.database_url
+        == "postgresql+psycopg://user:password@localhost:5432/helpdesk_db"
     )
 
 
@@ -86,7 +87,7 @@ def test_settings_reads_runtime_values_from_env_file(
                 "ENVIRONMENT=test",
                 "PORT=9000",
                 "LOG_LEVEL=DEBUG",
-                "DATABASE_URL=postgresql://user:password@localhost:5432/helpdesk_db",
+                "DATABASE_URL=postgresql+psycopg://user:password@localhost:5432/helpdesk_db",
                 "RUN_POSTGRES_TESTS=true",
             ]
         ),
