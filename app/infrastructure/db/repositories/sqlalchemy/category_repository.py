@@ -1,9 +1,8 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
 from app.domain.entities.category import Category
 from app.domain.exceptions.category_exceptions import CategoryNotFoundError
 from app.infrastructure.db.sqlalchemy.models import CategoryORM
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 
 class SQLAlchemyCategoryRepository:
