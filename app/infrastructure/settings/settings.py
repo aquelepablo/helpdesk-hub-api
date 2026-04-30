@@ -27,7 +27,8 @@ class Settings(BaseSettings):
     port: int = 8000
     log_level: str = "INFO"
 
-    database_url: str | None = None
+    database_url: str
+    run_postgres_tests: bool = False
 
     @field_validator("log_level", mode="before")
     @classmethod
