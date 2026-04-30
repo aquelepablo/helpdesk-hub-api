@@ -1,4 +1,4 @@
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Closing, Provide, inject
 from fastapi import APIRouter, Depends, status
 
 from app.api.docs.error_responses import (
@@ -34,7 +34,9 @@ router = APIRouter(prefix="/tickets/{ticket_id}/comments", tags=["comments"])
 @inject
 def list_comments(
     ticket_id: int,
-    use_case: ListCommentsUseCase = Depends(Provide[Container.list_comments_use_case]),
+    use_case: ListCommentsUseCase = Depends(
+        Closing[Provide[Container.list_comments_use_case]]
+    ),
 ) -> ApiResponse[list[CommentResponse]]:
     comments = use_case.execute(ticket_id)
     responses = [CommentResponse.model_validate(comment) for comment in comments]
@@ -52,7 +54,7 @@ def create_comment(
     ticket_id: int,
     request: CommentCreateRequest,
     use_case: CreateCommentUseCase = Depends(
-        Provide[Container.create_comment_use_case]
+        Closing[Provide[Container.create_comment_use_case]]
     ),
 ) -> ApiResponse[CommentResponse]:
     input_data = CreateCommentInput(ticket_id=ticket_id, content=request.content)
@@ -73,7 +75,7 @@ def update_comment(
     comment_id: int,
     request: CommentUpdateRequest,
     use_case: UpdateCommentUseCase = Depends(
-        Provide[Container.update_comment_use_case]
+        Closing[Provide[Container.update_comment_use_case]]
     ),
 ) -> ApiResponse[CommentResponse]:
     input_data = UpdateCommentInput(
