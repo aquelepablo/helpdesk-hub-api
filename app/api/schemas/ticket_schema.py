@@ -12,7 +12,7 @@ class TicketCreateRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
     title: str = Field(
-        ..., min_length=1, max_length=255, description="Short ticket name."
+        ..., min_length=1, max_length=200, description="Short ticket name."
     )
     description: str = Field(
         ..., min_length=1, max_length=500, description="Optional ticket description."

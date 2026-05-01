@@ -69,4 +69,3 @@ try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
     print(f"Aviso: Não foi possível criar tabelas: {e}")
-    print("A aplicação vai usar o repositório em memória.")
