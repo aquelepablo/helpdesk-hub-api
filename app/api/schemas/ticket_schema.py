@@ -76,7 +76,7 @@ class TicketFilterRequest(BaseModel):
     sort_field: TicketSortField = Field(
         default=TicketSortField.ID, description="Field by which to sort the tickets."
     )
-    sort_order: SortDirection = Field(
+    sort_direction: SortDirection = Field(
         default=SortDirection.ASC, description="Direction in which to sort the tickets."
     )
 
