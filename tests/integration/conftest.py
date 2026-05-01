@@ -19,9 +19,7 @@ database_url = os.getenv("DATABASE_URL")
 if not database_url:
     raise RuntimeError("DATABASE_URL não configurada.")
 
-test_database_url = database_url.rsplit("/", 1)[0] + "/helpdesk_db_test"
-
-os.environ["DATABASE_URL"] = test_database_url
+os.environ["DATABASE_URL"] = database_url + "_test"
 os.environ["ENVIRONMENT"] = "test"
 
 from app.infrastructure.db.sqlalchemy.database import Base, engine  # noqa: E402
@@ -40,7 +38,7 @@ def reset_memory() -> None:
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_database_schema() -> Generator[None, None, None]:
-    if not str(engine.url).endswith("helpdesk_db_test"):
+    if not str(engine.url).endswith("_test"):
         raise RuntimeError(
             f"Testes tentando limpar uma base que não é de teste: {engine.url}"
         )
