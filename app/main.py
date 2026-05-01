@@ -13,8 +13,6 @@ from app.api.routers import (
 from app.infrastructure.bootstrap.seed_categories import seed_categories
 from app.infrastructure.container import Container
 from app.infrastructure.logging.logging_config import configure_logging
-
-# from app.infrastructure.settings.project_metadata import project_metadata
 from app.infrastructure.settings.settings import settings
 
 API_PREFIX = "/api/v1"
@@ -46,6 +44,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.state.container = container
+
     # TODO: Add middleware
 
     register_exception_handlers(app)
@@ -59,3 +59,14 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+try:
+    from app.infrastructure.db.sqlalchemy import (
+        models,  # pyright: ignore[reportUnusedImport] # noqa: F401
+    )
+    from app.infrastructure.db.sqlalchemy.database import Base, engine
+
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Aviso: Não foi possível criar tabelas: {e}")
+    print("A aplicação vai usar o repositório em memória.")
