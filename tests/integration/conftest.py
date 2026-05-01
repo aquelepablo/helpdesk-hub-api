@@ -4,6 +4,7 @@ from collections.abc import Generator
 import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 
 from app.infrastructure.db.repositories.memory.memory_database import (
     category_db,
@@ -13,17 +14,15 @@ from app.infrastructure.db.repositories.memory.memory_database import (
 
 load_dotenv()
 
-# 2) pega a URL original
 database_url = os.getenv("DATABASE_URL")
 
 if not database_url:
     raise RuntimeError("DATABASE_URL não configurada.")
 
-# 3) cria a URL da base de teste
 test_database_url = database_url.rsplit("/", 1)[0] + "/helpdesk_db_test"
 
-# 4) sobrescreve para os testes
 os.environ["DATABASE_URL"] = test_database_url
+os.environ["ENVIRONMENT"] = "test"
 
 from app.infrastructure.db.sqlalchemy.database import Base, engine  # noqa: E402
 from app.main import app  # noqa: E402
@@ -39,8 +38,8 @@ def reset_memory() -> None:
     comment_db.comments.clear()
 
 
-@pytest.fixture(autouse=True)
-def truncate_database() -> Generator[None, None, None]:
+@pytest.fixture(scope="session", autouse=True)
+def prepare_database_schema() -> Generator[None, None, None]:
     if not str(engine.url).endswith("helpdesk_db_test"):
         raise RuntimeError(
             f"Testes tentando limpar uma base que não é de teste: {engine.url}"
@@ -54,7 +53,15 @@ def truncate_database() -> Generator[None, None, None]:
     Base.metadata.drop_all(bind=engine)
 
 
+def clear_database() -> None:
+    with engine.begin() as connection:
+        connection.execute(
+            text("TRUNCATE comments, tickets, categories RESTART IDENTITY CASCADE")
+        )
+
+
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     with TestClient(app) as test_client:
+        clear_database()
         yield test_client
