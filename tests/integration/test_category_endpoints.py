@@ -1,22 +1,21 @@
 from fastapi.testclient import TestClient
 
-from app.main import API_PREFIX, app
-
-client = TestClient(app)
+from app.main import API_PREFIX
 
 
-def test_list_categories_returns_empty_list_when_memory_is_empty() -> None:
+def test_list_categories_returns_empty_list_when_memory_is_empty(
+    client: TestClient,
+) -> None:
     response = client.get(f"{API_PREFIX}/categories")
+    body = response.json()
 
     assert response.status_code == 200
-    assert response.json() == {
-        "success": True,
-        "message": "Categorias listadas com sucesso",
-        "data": [],
-    }
+    assert body["success"] is True
+    assert body["message"] == "Categorias listadas com sucesso"
+    assert len(body["data"]) == 6
 
 
-def test_create_category_returns_created_category() -> None:
+def test_create_category_returns_created_category(client: TestClient) -> None:
     payload: dict[str, str | bool] = {
         "name": "Hardware",
         "description": "Problemas fÍsicos com equipamentos",
@@ -29,13 +28,13 @@ def test_create_category_returns_created_category() -> None:
     assert response.status_code == 201
     assert body["success"] is True
     assert body["message"] == "Categoria criada com sucesso"
-    assert body["data"]["id"] == 1
+    assert body["data"]["id"] == 7
     assert body["data"]["name"] == "Hardware"
     assert body["data"]["description"] == "Problemas fÍsicos com equipamentos"
     assert body["data"]["is_active"] is True
 
 
-def test_get_category_by_id_returns_category_details() -> None:
+def test_get_category_by_id_returns_category_details(client: TestClient) -> None:
     created = client.post(
         f"{API_PREFIX}/categories",
         json={
@@ -57,7 +56,7 @@ def test_get_category_by_id_returns_category_details() -> None:
     assert body["data"]["name"] == "Acesso"
 
 
-def test_update_category_returns_updated_category() -> None:
+def test_update_category_returns_updated_category(client: TestClient) -> None:
     created = client.post(
         f"{API_PREFIX}/categories",
         json={
@@ -80,13 +79,13 @@ def test_update_category_returns_updated_category() -> None:
 
     assert response.status_code == 200
     assert body["success"] is True
-    assert body["data"]["id"] == 1
+    assert body["data"]["id"] == 7
     assert body["message"] == "Categoria atualizada com sucesso"
     assert body["data"]["name"] == "Software Corporativo"
     assert body["data"]["is_active"] is False
 
 
-def test_create_category_returns_422_for_invalid_payload() -> None:
+def test_create_category_returns_422_for_invalid_payload(client: TestClient) -> None:
     response = client.post(
         f"{API_PREFIX}/categories",
         json={
@@ -109,7 +108,9 @@ def test_create_category_returns_422_for_invalid_payload() -> None:
     assert "name" in error_fields
 
 
-def test_get_category_by_id_returns_not_found_for_unknown_id() -> None:
+def test_get_category_by_id_returns_not_found_for_unknown_id(
+    client: TestClient,
+) -> None:
     invalid_category_id = 999
 
     response = client.get(f"{API_PREFIX}/categories/{invalid_category_id}")
@@ -127,7 +128,7 @@ def test_get_category_by_id_returns_not_found_for_unknown_id() -> None:
     assert "not_found" in error_codes
 
 
-def test_update_category_returns_not_found_for_unknown_id() -> None:
+def test_update_category_returns_not_found_for_unknown_id(client: TestClient) -> None:
     invalid_category_id = 999
 
     response = client.patch(

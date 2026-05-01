@@ -1,12 +1,10 @@
 from fastapi.testclient import TestClient
 
 from app.infrastructure.settings.settings import settings
-from app.main import API_PREFIX, app
-
-client = TestClient(app)
+from app.main import API_PREFIX
 
 
-def test_get_root_returns_service_metadata() -> None:
+def test_get_root_returns_service_metadata(client: TestClient) -> None:
     response = client.get(API_PREFIX)
 
     assert response.status_code == 200
@@ -16,14 +14,14 @@ def test_get_root_returns_service_metadata() -> None:
     }
 
 
-def test_get_liveness_returns_ok() -> None:
+def test_get_liveness_returns_ok(client: TestClient) -> None:
     response = client.get(f"{API_PREFIX}/live")
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
 
-def test_get_health_returns_structured_payload() -> None:
+def test_get_health_returns_structured_payload(client: TestClient) -> None:
     response = client.get(f"{API_PREFIX}/health")
 
     assert response.status_code == 200
@@ -33,7 +31,7 @@ def test_get_health_returns_structured_payload() -> None:
     }
 
 
-def test_get_info_returns_application_metadata() -> None:
+def test_get_info_returns_application_metadata(client: TestClient) -> None:
     response = client.get(f"{API_PREFIX}/info")
 
     assert response.status_code == 200
@@ -45,7 +43,7 @@ def test_get_info_returns_application_metadata() -> None:
     }
 
 
-def test_get_ping_returns_utc_timestamp() -> None:
+def test_get_ping_returns_utc_timestamp(client: TestClient) -> None:
     response = client.get(f"{API_PREFIX}/ping")
 
     assert response.status_code == 200

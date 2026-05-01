@@ -1,11 +1,9 @@
 from fastapi.testclient import TestClient
 
-from app.main import API_PREFIX, app
-
-client = TestClient(app)
+from app.main import API_PREFIX
 
 
-def _create_category() -> int:
+def _create_category(client: TestClient) -> int:
     response = client.post(
         f"{API_PREFIX}/categories",
         json={
@@ -24,8 +22,8 @@ def _create_category() -> int:
     return int(body["data"]["id"])
 
 
-def _create_ticket() -> int:
-    category_id = _create_category()
+def _create_ticket(client: TestClient) -> int:
+    category_id = _create_category(client)
 
     response = client.post(
         f"{API_PREFIX}/tickets",
@@ -46,8 +44,10 @@ def _create_ticket() -> int:
     return int(body["data"]["id"])
 
 
-def test_list_comments_returns_empty_list_when_ticket_has_no_comments() -> None:
-    ticket_id = _create_ticket()
+def test_list_comments_returns_empty_list_when_ticket_has_no_comments(
+    client: TestClient,
+) -> None:
+    ticket_id = _create_ticket(client)
 
     response = client.get(f"{API_PREFIX}/tickets/{ticket_id}/comments")
 
@@ -59,8 +59,8 @@ def test_list_comments_returns_empty_list_when_ticket_has_no_comments() -> None:
     }
 
 
-def test_create_comment_returns_created_comment() -> None:
-    ticket_id = _create_ticket()
+def test_create_comment_returns_created_comment(client: TestClient) -> None:
+    ticket_id = _create_ticket(client)
 
     payload: dict[str, str] = {
         "content": "Primeiro comentário do ticket",
@@ -77,8 +77,8 @@ def test_create_comment_returns_created_comment() -> None:
     assert body["data"]["content"] == "Primeiro comentário do ticket"
 
 
-def test_list_comments_returns_ticket_comments() -> None:
-    ticket_id = _create_ticket()
+def test_list_comments_returns_ticket_comments(client: TestClient) -> None:
+    ticket_id = _create_ticket(client)
 
     client.post(
         f"{API_PREFIX}/tickets/{ticket_id}/comments",
@@ -100,12 +100,12 @@ def test_list_comments_returns_ticket_comments() -> None:
     assert body["data"][1]["content"] == "Segundo comentário"
 
 
-def test_update_comment_returns_updated_comment() -> None:
-    ticket_id = _create_ticket()
+def test_update_comment_returns_updated_comment(client: TestClient) -> None:
+    ticket_id = _create_ticket(client)
 
     created = client.post(
         f"{API_PREFIX}/tickets/{ticket_id}/comments",
-        json={"content": "Comentario original"},
+        json={"content": "Comentário original"},
     ).json()
 
     comment_id = created["data"]["id"]
@@ -124,7 +124,9 @@ def test_update_comment_returns_updated_comment() -> None:
     assert body["data"]["content"] == "Comentário atualizado"
 
 
-def test_create_comment_returns_422_for_invalid_empty_comment() -> None:
+def test_create_comment_returns_422_for_invalid_empty_comment(
+    client: TestClient,
+) -> None:
     ticket_id = 1
     response = client.post(
         f"{API_PREFIX}/tickets/{ticket_id}/comments",
@@ -147,7 +149,7 @@ def test_create_comment_returns_422_for_invalid_empty_comment() -> None:
     assert error["message"] == "Value error, Comment cannot be empty or blank."
 
 
-def test_create_comment_returns_422_for_invalid_payload() -> None:
+def test_create_comment_returns_422_for_invalid_payload(client: TestClient) -> None:
     ticket_id = 1
     response = client.post(
         f"{API_PREFIX}/tickets/{ticket_id}/comments",
@@ -167,7 +169,7 @@ def test_create_comment_returns_422_for_invalid_payload() -> None:
     assert "invalid_field" in error_fields
 
 
-def test_list_comments_returns_not_found_for_unknown_ticket() -> None:
+def test_list_comments_returns_not_found_for_unknown_ticket(client: TestClient) -> None:
     invalid_ticket_id = 999
 
     response = client.get(f"{API_PREFIX}/tickets/{invalid_ticket_id}/comments")
@@ -185,8 +187,10 @@ def test_list_comments_returns_not_found_for_unknown_ticket() -> None:
     assert "not_found" in error_codes
 
 
-def test_update_comment_returns_not_found_for_unknown_comment() -> None:
-    ticket_id = _create_ticket()
+def test_update_comment_returns_not_found_for_unknown_comment(
+    client: TestClient,
+) -> None:
+    ticket_id = _create_ticket(client)
     invalid_comment_id = 999
 
     response = client.patch(
