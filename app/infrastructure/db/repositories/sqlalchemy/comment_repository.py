@@ -12,6 +12,7 @@ class SQLAlchemyCommentRepository(ICommentRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
 
+    # ========== Contract methods ==========
     def create(self, comment: Comment) -> Comment:
 
         if not comment:

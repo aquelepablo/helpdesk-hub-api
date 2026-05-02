@@ -19,6 +19,7 @@ class SQLAlchemyTicketRepository(ITicketRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
 
+    # ========== Contract methods ==========
     def create(self, ticket: Ticket) -> Ticket:
 
         if not ticket:

@@ -5,6 +5,7 @@ from operator import attrgetter
 from app.application.dtos.pagination import PagedResult, PaginationParams
 from app.application.dtos.sorting import SortDirection
 from app.application.dtos.ticket_query import TicketFilter
+from app.application.interfaces.repositories.ticket_repository import ITicketRepository
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_sort_field import TicketSortField
 from app.domain.exceptions.ticket_exceptions import (
@@ -15,14 +16,7 @@ from app.infrastructure.db.repositories.memory.memory_database import ticket_db
 from app.infrastructure.db.repositories.memory.safe_copy import detached_copy
 
 
-class InMemoryTicketRepository:
-    def _find_stored_ticket_by_id(self, ticket_id: int) -> Ticket:
-        for ticket in ticket_db.tickets:
-            if ticket.id == ticket_id:
-                return ticket
-
-        raise TicketNotFoundError(ticket_id)
-
+class InMemoryTicketRepository(ITicketRepository):
     def create(self, ticket: Ticket) -> Ticket:
         ticket_db.id_counter += 1
         ticket.id = ticket_db.id_counter
@@ -38,7 +32,7 @@ class InMemoryTicketRepository:
         if updated_ticket.id is None:
             raise TicketIdRequiredForUpdateError()
 
-        stored_ticket = self._find_stored_ticket_by_id(updated_ticket.id)
+        stored_ticket = self._find_stored_ticket(updated_ticket.id)
 
         stored_ticket.category_id = updated_ticket.category_id
         stored_ticket.priority = updated_ticket.priority
@@ -46,6 +40,40 @@ class InMemoryTicketRepository:
         stored_ticket.updated_at = datetime.now(UTC)
 
         return detached_copy(stored_ticket)
+
+    def list_by_filter(
+        self, ticket_filter: TicketFilter, pagination_params: PaginationParams
+    ) -> PagedResult[Ticket]:
+
+        tickets = self._filter_ticket_list(ticket_filter)
+
+        total_items = len(tickets)
+        start = pagination_params.offset
+        end = pagination_params.offset + pagination_params.page_size
+        paginated_tickets = tickets[start:end]
+        total_pages = (
+            ceil(total_items / pagination_params.page_size) if total_items else 0
+        )
+
+        return PagedResult(
+            items=detached_copy(paginated_tickets),
+            total_items=total_items,
+            page=pagination_params.page,
+            page_size=pagination_params.page_size,
+            total_pages=total_pages,
+        )
+
+    def get_by_id(self, ticket_id: int) -> Ticket:
+        stored_ticket = self._find_stored_ticket(ticket_id)
+        return detached_copy(stored_ticket)
+
+    # ========== Private methods ==========
+    def _find_stored_ticket(self, ticket_id: int) -> Ticket:
+        for ticket in ticket_db.tickets:
+            if ticket.id == ticket_id:
+                return ticket
+
+        raise TicketNotFoundError(ticket_id)
 
     def _sort_tickets_list(
         self,
@@ -112,30 +140,3 @@ class InMemoryTicketRepository:
         )
 
         return sorted_tickets
-
-    # TODO: split responsibilities
-    def list_by_filter(
-        self, ticket_filter: TicketFilter, pagination_params: PaginationParams
-    ) -> PagedResult[Ticket]:
-
-        tickets = self._filter_ticket_list(ticket_filter)
-
-        total_items = len(tickets)
-        start = pagination_params.offset
-        end = pagination_params.offset + pagination_params.page_size
-        paginated_tickets = tickets[start:end]
-        total_pages = (
-            ceil(total_items / pagination_params.page_size) if total_items else 0
-        )
-
-        return PagedResult(
-            items=detached_copy(paginated_tickets),
-            total_items=total_items,
-            page=pagination_params.page,
-            page_size=pagination_params.page_size,
-            total_pages=total_pages,
-        )
-
-    def get_by_id(self, ticket_id: int) -> Ticket:
-        stored_ticket = self._find_stored_ticket_by_id(ticket_id)
-        return detached_copy(stored_ticket)
