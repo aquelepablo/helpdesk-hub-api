@@ -87,8 +87,8 @@ def create_ticket(
 @inject
 def get_ticket_by_id(
     ticket_id: int,
-    use_case: GetTicketByIdUseCase = Depends(
-        Closing[Provide[Container.get_ticket_by_id_use_case]]
+    use_case: GetTicketUseCase = Depends(
+        Closing[Provide[Container.get_ticket_use_case]]
     ),
 ) -> ApiResponse[TicketResponse]:
     ticket = use_case.execute(ticket_id)

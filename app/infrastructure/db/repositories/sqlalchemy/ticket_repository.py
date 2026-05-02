@@ -18,12 +18,40 @@ class SQLAlchemyTicketRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    # ========== Contract methods ==========
-    def save(self, ticket: Ticket) -> Ticket:
-        if ticket.id is None:
-            return self._create(ticket)
-        else:
-            return self._update(ticket.id, ticket)
+    def create(self, ticket: Ticket) -> Ticket:
+
+        if not ticket:
+            raise ValueError("Ticket cannot be None")
+
+        ticket_orm = TicketORM(
+            title=ticket.title,
+            description=ticket.description,
+            status=ticket.status,
+            priority=ticket.priority,
+            category_id=ticket.category_id,
+        )
+
+        self._session.add(ticket_orm)
+        self._session.commit()
+        self._session.refresh(ticket_orm)
+
+        return self._orm_to_domain(ticket_orm)
+
+    def update(self, updated_ticket: Ticket) -> Ticket:
+
+        if not updated_ticket.id or updated_ticket.id <= 0:
+            raise ValueError("Ticket must have a valid ID")
+
+        ticket_orm = self._get_ticket_orm_by_id(updated_ticket.id)
+
+        ticket_orm.category_id = updated_ticket.category_id
+        ticket_orm.status = updated_ticket.status
+        ticket_orm.priority = updated_ticket.priority
+
+        self._session.commit()
+        self._session.refresh(ticket_orm)
+
+        return self._orm_to_domain(ticket_orm)
 
     def list_by_filter(
         self, ticket_filter: TicketFilter, pagination_params: PaginationParams
@@ -44,41 +72,6 @@ class SQLAlchemyTicketRepository:
         return self._orm_to_domain(ticket_orm)
 
     # ========== Private methods ==========
-    def _create(self, ticket: Ticket) -> Ticket:
-
-        if not ticket:
-            raise ValueError("Ticket cannot be None")
-
-        ticket_orm = TicketORM(
-            title=ticket.title,
-            description=ticket.description,
-            status=ticket.status,
-            priority=ticket.priority,
-            category_id=ticket.category_id,
-        )
-
-        self._session.add(ticket_orm)
-        self._session.commit()
-        self._session.refresh(ticket_orm)
-
-        return self._orm_to_domain(ticket_orm)
-
-    def _update(self, ticket_id: int, updated_ticket: Ticket) -> Ticket:
-
-        if not updated_ticket or ticket_id <= 0:
-            raise ValueError("Ticket must have a valid ID")
-
-        ticket_orm = self._get_ticket_orm_by_id(ticket_id)
-
-        ticket_orm.category_id = updated_ticket.category_id
-        ticket_orm.status = updated_ticket.status
-        ticket_orm.priority = updated_ticket.priority
-
-        self._session.commit()
-        self._session.refresh(ticket_orm)
-
-        return self._orm_to_domain(ticket_orm)
-
     def _get_ticket_orm_by_id(self, ticket_id: int) -> TicketORM:
         ticket_orm = self._session.get(TicketORM, ticket_id)
 
