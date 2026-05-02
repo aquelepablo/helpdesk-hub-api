@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-from app.application.interfaces.repositories.comment_repository import CommentRepository
+from app.application.interfaces.repositories.comment_repository import (
+    ICommentRepository,
+)
 from app.application.interfaces.repositories.ticket_repository import ITicketRepository
 from app.domain.entities.comment import Comment
 
@@ -15,7 +17,7 @@ class UpdateCommentInput:
 class UpdateCommentUseCase:
     def __init__(
         self,
-        comment_repository: CommentRepository,
+        comment_repository: ICommentRepository,
         ticket_repository: ITicketRepository,
     ) -> None:
         self._comment_repository = comment_repository

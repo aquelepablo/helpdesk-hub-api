@@ -1,5 +1,5 @@
 from app.application.interfaces.repositories.comment_repository import (
-    CommentRepository,
+    ICommentRepository,
 )
 from app.application.interfaces.repositories.ticket_repository import ITicketRepository
 from app.domain.entities.comment import Comment
@@ -8,7 +8,7 @@ from app.domain.entities.comment import Comment
 class ListCommentsUseCase:
     def __init__(
         self,
-        comment_repository: CommentRepository,
+        comment_repository: ICommentRepository,
         ticket_repository: ITicketRepository,
     ) -> None:
         self._comment_repository = comment_repository

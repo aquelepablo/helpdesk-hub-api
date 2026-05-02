@@ -1,3 +1,6 @@
+from app.application.interfaces.repositories.comment_repository import (
+    ICommentRepository,
+)
 from app.domain.entities.comment import Comment
 from app.domain.exceptions.comment_exceptions import CommentNotFoundError
 from app.infrastructure.db.sqlalchemy.models import CommentORM
@@ -5,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 
-class SQLAlchemyCommentRepository:
+class SQLAlchemyCommentRepository(ICommentRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
 
