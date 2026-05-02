@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.interfaces.repositories.comment_repository import CommentRepository
-from app.application.interfaces.repositories.ticket_repository import TicketRepository
+from app.application.interfaces.repositories.ticket_repository import ITicketRepository
 from app.domain.entities.comment import Comment
 
 
@@ -13,7 +13,9 @@ class CreateCommentInput:
 
 class CreateCommentUseCase:
     def __init__(
-        self, comment_repository: CommentRepository, ticket_repository: TicketRepository
+        self,
+        comment_repository: CommentRepository,
+        ticket_repository: ITicketRepository,
     ) -> None:
         self._comment_repository = comment_repository
         self._ticket_repository = ticket_repository

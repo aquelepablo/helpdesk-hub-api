@@ -4,7 +4,7 @@ from app.application.dtos.pagination import PagedResult, PaginationParams
 from app.application.dtos.sorting import SortDirection
 from app.application.dtos.ticket_query import TicketFilter
 from app.application.interfaces.repositories.ticket_repository import (
-    TicketRepository,
+    ITicketRepository,
 )
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
@@ -23,7 +23,7 @@ class ListTicketsInput:
 
 
 class ListTicketsUseCase:
-    def __init__(self, ticket_repository: TicketRepository) -> None:
+    def __init__(self, ticket_repository: ITicketRepository) -> None:
         self._ticket_repository = ticket_repository
 
     def execute(self, input_data: ListTicketsInput) -> PagedResult[Ticket]:

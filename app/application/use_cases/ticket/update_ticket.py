@@ -4,7 +4,7 @@ from app.application.interfaces.repositories.category_repository import (
     ICategoryRepository,
 )
 from app.application.interfaces.repositories.ticket_repository import (
-    TicketRepository,
+    ITicketRepository,
 )
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
@@ -23,7 +23,7 @@ class UpdateTicketInput:
 class UpdateTicketUseCase:
     def __init__(
         self,
-        ticket_repository: TicketRepository,
+        ticket_repository: ITicketRepository,
         category_repository: ICategoryRepository,
     ) -> None:
         self._ticket_repo = ticket_repository

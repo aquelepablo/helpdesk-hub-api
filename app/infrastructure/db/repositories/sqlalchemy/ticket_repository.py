@@ -4,6 +4,7 @@ from typing import Any
 from app.application.dtos.pagination import PagedResult, PaginationParams
 from app.application.dtos.sorting import SortDirection
 from app.application.dtos.ticket_query import TicketFilter
+from app.application.interfaces.repositories.ticket_repository import ITicketRepository
 from app.domain.entities.ticket import Ticket
 from app.domain.enum.ticket_priority import TicketPriority
 from app.domain.enum.ticket_sort_field import TicketSortField
@@ -14,7 +15,7 @@ from sqlalchemy import Case, case
 from sqlalchemy.orm import InstrumentedAttribute, Query, Session
 
 
-class SQLAlchemyTicketRepository:
+class SQLAlchemyTicketRepository(ITicketRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
 
