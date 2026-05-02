@@ -45,10 +45,9 @@ def test_get_info_returns_application_metadata(client: TestClient) -> None:
 
 def test_get_ping_returns_utc_timestamp(client: TestClient) -> None:
     response = client.get(f"{API_PREFIX}/ping")
-
-    assert response.status_code == 200
     body = response.json()
 
+    assert response.status_code == 200
     assert "timestamp" in body
     assert body["timezone"] == "UTC"
     assert body["timestamp"].endswith("+00:00")
