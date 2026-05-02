@@ -9,27 +9,7 @@ class SQLAlchemyCommentRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    # ========== Contract methods ==========
-    def save(self, comment: Comment) -> Comment:
-        if comment.id is None:
-            return self._create(comment)
-        else:
-            return self._update(comment.id, comment)
-
-    def list_by_ticket_id(self, ticket_id: int) -> list[Comment]:
-        comments_orm = self._session.scalars(
-            select(CommentORM).where(CommentORM.ticket_id == ticket_id)
-        ).all()
-
-        return [self._orm_to_domain(comment_orm) for comment_orm in comments_orm]
-
-    def get_by_id_and_ticket_id(self, comment_id: int, ticket_id: int) -> Comment:
-        comment_orm = self._get_comment_orm_by_id_and_ticket_id(comment_id, ticket_id)
-
-        return self._orm_to_domain(comment_orm)
-
-    # ========== Private methods ==========
-    def _create(self, comment: Comment) -> Comment:
+    def create(self, comment: Comment) -> Comment:
 
         if not comment:
             raise ValueError("Comment cannot be None")
@@ -45,13 +25,13 @@ class SQLAlchemyCommentRepository:
 
         return self._orm_to_domain(comment_orm)
 
-    def _update(self, comment_id: int, updated_comment: Comment) -> Comment:
+    def update(self, updated_comment: Comment) -> Comment:
 
-        if not updated_comment or comment_id <= 0:
+        if not updated_comment.id or updated_comment.id <= 0:
             raise ValueError("Comment must have a valid ID")
 
-        comment_orm = self._get_comment_orm_by_id_and_ticket_id(
-            comment_id, updated_comment.ticket_id
+        comment_orm = self._get_comment_orm(
+            updated_comment.id, updated_comment.ticket_id
         )
 
         comment_orm.content = updated_comment.content
@@ -61,9 +41,20 @@ class SQLAlchemyCommentRepository:
 
         return self._orm_to_domain(comment_orm)
 
-    def _get_comment_orm_by_id_and_ticket_id(
-        self, comment_id: int, ticket_id: int
-    ) -> CommentORM:
+    def list_by_ticket_id(self, ticket_id: int) -> list[Comment]:
+        comments_orm = self._session.scalars(
+            select(CommentORM).where(CommentORM.ticket_id == ticket_id)
+        ).all()
+
+        return [self._orm_to_domain(comment_orm) for comment_orm in comments_orm]
+
+    def get_by_id_and_ticket_id(self, comment_id: int, ticket_id: int) -> Comment:
+        comment_orm = self._get_comment_orm(comment_id, ticket_id)
+
+        return self._orm_to_domain(comment_orm)
+
+    # ========== Private methods ==========
+    def _get_comment_orm(self, comment_id: int, ticket_id: int) -> CommentORM:
 
         comment_orm = self._session.scalars(
             select(CommentORM).where(

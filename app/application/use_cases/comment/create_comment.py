@@ -26,6 +26,6 @@ class CreateCommentUseCase:
             ticket_id=input_data.ticket_id, content=input_data.content
         )
 
-        persisted_comment: Comment = self._comment_repository.save(new_comment)
+        persisted_comment: Comment = self._comment_repository.create(new_comment)
 
         return persisted_comment

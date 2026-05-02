@@ -28,4 +28,4 @@ class UpdateCommentUseCase:
 
         existing_comment.content = input_data.content
 
-        return self._comment_repository.save(existing_comment)
+        return self._comment_repository.update(existing_comment)
