@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from app.domain.entities.category import Category
 
 
-class CategoryRepository(ABC):
+class ICategoryRepository(ABC):
     @abstractmethod
     def create(self, category: Category) -> Category: ...
 

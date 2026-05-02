@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.interfaces.repositories.category_repository import (
-    CategoryRepository,
+    ICategoryRepository,
 )
 from app.domain.entities.category import Category
 
@@ -15,7 +15,7 @@ class UpdateCategoryInput:
 
 
 class UpdateCategoryUseCase:
-    def __init__(self, category_repository: CategoryRepository) -> None:
+    def __init__(self, category_repository: ICategoryRepository) -> None:
         self._category_repository = category_repository
 
     def execute(self, input_data: UpdateCategoryInput) -> Category:

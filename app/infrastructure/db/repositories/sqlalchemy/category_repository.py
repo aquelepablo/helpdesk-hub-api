@@ -1,3 +1,6 @@
+from app.application.interfaces.repositories.category_repository import (
+    ICategoryRepository,
+)
 from app.domain.entities.category import Category
 from app.domain.exceptions.category_exceptions import CategoryNotFoundError
 from app.infrastructure.db.sqlalchemy.models import CategoryORM
@@ -5,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 
-class SQLAlchemyCategoryRepository:
+class SQLAlchemyCategoryRepository(ICategoryRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
 
