@@ -22,7 +22,7 @@ def seed_categories() -> None:
                     description=category_data["description"],
                     is_active=category_data["is_active"],
                 )
-                category_repository.save(category)
+                category_repository.create(category)
 
     finally:
         session_generator.close()

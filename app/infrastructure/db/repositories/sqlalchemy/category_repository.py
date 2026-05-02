@@ -10,24 +10,7 @@ class SQLAlchemyCategoryRepository:
         self._session = session
 
     # ========== Contract methods ==========
-    def save(self, category: Category) -> Category:
-        if category.id is None:
-            return self._create(category)
-        else:
-            return self._update(category.id, category)
-
-    def list_all(self) -> list[Category]:
-        categories_orm = self._session.scalars(select(CategoryORM)).all()
-
-        return [self._orm_to_domain(category_orm) for category_orm in categories_orm]
-
-    def get_by_id(self, category_id: int) -> Category:
-        category_orm = self._get_category_orm_by_id(category_id)
-
-        return self._orm_to_domain(category_orm)
-
-    # ========== Private methods ==========
-    def _create(self, category: Category) -> Category:
+    def create(self, category: Category) -> Category:
 
         if not category:
             raise ValueError("Category cannot be None")
@@ -44,12 +27,12 @@ class SQLAlchemyCategoryRepository:
 
         return self._orm_to_domain(category_orm)
 
-    def _update(self, category_id: int, updated_category: Category) -> Category:
+    def update(self, updated_category: Category) -> Category:
 
-        if not updated_category or category_id <= 0:
+        if not updated_category.id or updated_category.id <= 0:
             raise ValueError("Category must have a valid ID")
 
-        category_orm = self._get_category_orm_by_id(category_id)
+        category_orm = self._get_category_orm(updated_category.id)
 
         category_orm.name = updated_category.name
         category_orm.description = updated_category.description
@@ -60,7 +43,18 @@ class SQLAlchemyCategoryRepository:
 
         return self._orm_to_domain(category_orm)
 
-    def _get_category_orm_by_id(self, category_id: int) -> CategoryORM:
+    def list_all(self) -> list[Category]:
+        categories_orm = self._session.scalars(select(CategoryORM)).all()
+
+        return [self._orm_to_domain(category_orm) for category_orm in categories_orm]
+
+    def get_by_id(self, category_id: int) -> Category:
+        category_orm = self._get_category_orm(category_id)
+
+        return self._orm_to_domain(category_orm)
+
+    # ========== Private methods ==========
+    def _get_category_orm(self, category_id: int) -> CategoryORM:
 
         category_orm = self._session.get(CategoryORM, category_id)
 

@@ -31,4 +31,4 @@ class UpdateCategoryUseCase:
         if input_data.is_active is not None:
             existing_category.is_active = input_data.is_active
 
-        return self._category_repository.save(existing_category)
+        return self._category_repository.update(existing_category)

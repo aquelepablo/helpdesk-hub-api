@@ -25,6 +25,6 @@ class CreateCategoryUseCase:
             is_active=input_data.is_active,
         )
 
-        persisted_category = self._category_repository.save(new_category)
+        persisted_category = self._category_repository.create(new_category)
 
         return persisted_category
